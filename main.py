@@ -2298,9 +2298,8 @@ LEADERBOARD_HTML = """<!DOCTYPE html>
       height: 72px;
     }
     .logo {
-      height: 56px;
+      height: 44px;
       width: auto;
-      max-width: 220px;
       flex-shrink: 0;
       object-fit: contain;
     }
@@ -2561,32 +2560,31 @@ LEADERBOARD_HTML = """<!DOCTYPE html>
 
     /* ── BOARD ── */
     .cards-wrap {
-      max-width: 920px; margin: 0 auto;
-      padding: 0 1rem 5rem;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
+      max-width: 460px; margin: 0 auto;
+      padding: 0 1.5rem 5rem;
+      display: flex; flex-direction: column; gap: 14px;
     }
-    .cards-wrap.gm-mode { grid-template-columns: 1fr; }
-    @media (max-width: 700px) {
-      .cards-wrap { grid-template-columns: 1fr; padding: 0 0.75rem 5rem; }
+
+    /* ── DESKTOP TABLE HEADER ── */
+    .desktop-table-header {
+      display: none;
     }
 
     /* ── OVERALL PLAYER CARD ── */
     @keyframes gold-anim {
-      0%   { border-color: #b8860b; box-shadow: 0 0 10px rgba(200,150,10,0.35), 0 0 28px rgba(200,150,10,0.15); background: linear-gradient(135deg, #201a06 0%, var(--surface) 45%, #201a06 100%); }
-      50%  { border-color: #f5c842; box-shadow: 0 0 18px rgba(245,200,66,0.6), 0 0 44px rgba(245,200,66,0.22); background: linear-gradient(135deg, #2c2408 0%, var(--surface) 45%, #2c2408 100%); }
-      100% { border-color: #b8860b; box-shadow: 0 0 10px rgba(200,150,10,0.35), 0 0 28px rgba(200,150,10,0.15); background: linear-gradient(135deg, #201a06 0%, var(--surface) 45%, #201a06 100%); }
+      0%   { border-color: #b8860b; box-shadow: 0 0 14px rgba(200,150,10,0.55), 0 0 36px rgba(200,150,10,0.22); }
+      50%  { border-color: #f5c842; box-shadow: 0 0 24px rgba(245,200,66,0.75), 0 0 54px rgba(245,200,66,0.28); }
+      100% { border-color: #b8860b; box-shadow: 0 0 14px rgba(200,150,10,0.55), 0 0 36px rgba(200,150,10,0.22); }
     }
     @keyframes silver-anim {
-      0%   { border-color: #7a8fa0; box-shadow: 0 0 10px rgba(122,143,160,0.35); background: linear-gradient(135deg, #0e1520 0%, var(--surface) 45%, #0e1520 100%); }
-      50%  { border-color: #c0cedd; box-shadow: 0 0 18px rgba(192,206,221,0.6); background: linear-gradient(135deg, #141c28 0%, var(--surface) 45%, #141c28 100%); }
-      100% { border-color: #7a8fa0; box-shadow: 0 0 10px rgba(122,143,160,0.35); background: linear-gradient(135deg, #0e1520 0%, var(--surface) 45%, #0e1520 100%); }
+      0%   { border-color: #7a8fa0; box-shadow: 0 0 14px rgba(122,143,160,0.55); }
+      50%  { border-color: #c0cedd; box-shadow: 0 0 24px rgba(192,206,221,0.75); }
+      100% { border-color: #7a8fa0; box-shadow: 0 0 14px rgba(122,143,160,0.55); }
     }
     @keyframes bronze-anim {
-      0%   { border-color: #7a4818; box-shadow: 0 0 10px rgba(140,90,40,0.35); background: linear-gradient(135deg, #1e1006 0%, var(--surface) 45%, #1e1006 100%); }
-      50%  { border-color: #c87840; box-shadow: 0 0 18px rgba(200,120,64,0.6); background: linear-gradient(135deg, #28160a 0%, var(--surface) 45%, #28160a 100%); }
-      100% { border-color: #7a4818; box-shadow: 0 0 10px rgba(140,90,40,0.35); background: linear-gradient(135deg, #1e1006 0%, var(--surface) 45%, #1e1006 100%); }
+      0%   { border-color: #7a4818; box-shadow: 0 0 14px rgba(140,90,40,0.55); }
+      50%  { border-color: #c87840; box-shadow: 0 0 24px rgba(200,120,64,0.75); }
+      100% { border-color: #7a4818; box-shadow: 0 0 14px rgba(140,90,40,0.55); }
     }
     .player-card {
       background: rgba(17,17,24,0.8);
@@ -2596,9 +2594,9 @@ LEADERBOARD_HTML = """<!DOCTYPE html>
       transition: border-color 0.15s, box-shadow 0.15s;
     }
     .player-card:hover { border-color: var(--border2); box-shadow: 0 4px 20px rgba(109,40,217,0.08); }
-    .player-card.rank-1 { border-width: 2px; animation: gold-anim 2.4s ease-in-out infinite; }
-    .player-card.rank-2 { border-width: 2px; animation: silver-anim 2.4s ease-in-out infinite; }
-    .player-card.rank-3 { border-width: 2px; animation: bronze-anim 2.4s ease-in-out infinite; }
+    .player-card.rank-1 { border-width: 2px; background: linear-gradient(160deg, #7a5200 0%, #c8940a 28%, #e8c040 50%, #c09018 72%, #7a5800 100%) !important; animation: gold-anim 2.4s ease-in-out infinite; }
+    .player-card.rank-2 { border-width: 2px; background: linear-gradient(160deg, #4a5560 0%, #8a9aaa 28%, #c0ccd8 50%, #8898a8 72%, #505e6a 100%) !important; animation: silver-anim 2.4s ease-in-out infinite; }
+    .player-card.rank-3 { border-width: 2px; background: linear-gradient(160deg, #5a3018 0%, #a06030 28%, #c88448 50%, #9a5c28 72%, #5a3010 100%) !important; animation: bronze-anim 2.4s ease-in-out infinite; }
     .player-card.rank-1:hover, .player-card.rank-2:hover, .player-card.rank-3:hover { border-color: inherit; box-shadow: none; }
 
     .card-top {
@@ -2769,6 +2767,106 @@ LEADERBOARD_HTML = """<!DOCTYPE html>
       letter-spacing: 0.06em; text-transform: uppercase;
     }
 
+    @media (min-width: 769px) {
+      .cards-wrap {
+        max-width: 1160px;
+        padding: 0 2rem 5rem;
+        gap: 14px;
+      }
+      .player-count {
+        max-width: 1160px;
+        padding: 0 2rem 8px;
+      }
+
+      /* ── Table column header ── */
+      .desktop-table-header {
+        display: grid;
+        grid-template-columns: 52px 58px 220px 84px 1fr;
+        align-items: center;
+        padding: 4px 0 8px 0;
+        font-size: 10px; font-weight: 800; letter-spacing: 0.12em;
+        text-transform: uppercase; color: var(--muted);
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 4px;
+      }
+      .desktop-table-header .dth-rank   { text-align: center; }
+      .desktop-table-header .dth-player { padding-left: 10px; }
+      .desktop-table-header .dth-region { text-align: center; }
+      .desktop-table-header .dth-tiers  { padding-left: 18px; }
+
+      /* ── Flatten card into a true single grid row ── */
+      .player-card {
+        display: grid !important;
+        grid-template-columns: 52px 58px 220px 84px 1fr;
+        align-items: center;
+        min-height: 58px;
+        border-radius: 8px;
+        flex-direction: unset;
+      }
+
+      /* card-top becomes invisible — its children join the parent grid */
+      .card-top {
+        display: contents !important;
+      }
+
+      /* ── Grid cell overrides ── */
+      .card-rank {
+        font-size: 20px;
+        padding: 0;
+        height: 100%;
+        display: flex; align-items: center; justify-content: center;
+      }
+
+      .card-skin {
+        width: 58px; height: 58px;
+        border-radius: 0; margin-left: 0;
+        overflow: hidden;
+      }
+      .skin-img {
+        height: 140%; max-width: 56px;
+      }
+      .skin-img.skin-uploaded {
+        height: 200%; width: 100%; max-width: 100%;
+      }
+
+      .card-info {
+        padding: 8px 14px;
+        display: flex; flex-direction: column; justify-content: center;
+        height: 100%;
+      }
+      .card-name { font-size: 14px; }
+      .card-subtitle { margin-top: 2px; }
+      .card-subtitle-text { font-size: 10px; }
+      .rank-pill { font-size: 10px; padding: 1px 6px; }
+
+      .card-region {
+        display: flex; align-items: center; justify-content: center;
+        height: 100%; padding: 0;
+      }
+      .region-badge { font-size: 11px; padding: 5px 9px; min-width: 38px; }
+
+      /* ── Tiers: 5th grid column ── */
+      .card-tiers {
+        display: flex !important;
+        align-items: center;
+        padding: 0 18px;
+        margin-top: 0;
+        height: 100%;
+        border-left: 1px solid rgba(99,59,196,0.15);
+      }
+      .tiers-label { display: none; }
+      .tiers-row   { flex-wrap: nowrap; gap: 7px; align-items: flex-start; padding-top: 6px; }
+      .tier-badge  { align-items: center; gap: 3px; }
+      .tier-badge-icon  { width: 28px; height: 28px; font-size: 12px; border-width: 1.5px; }
+      .tier-badge-label { font-size: 8px; padding: 1px 4px; }
+
+      /* ── Gamemode rows (already single-row, just widen) ── */
+      .gm-card {
+        grid-template-columns: 52px 1fr 100px 120px;
+        min-height: 56px; border-radius: 8px;
+      }
+    }
+
     @media (max-width: 580px) {
       .card-top { grid-template-columns: 36px 80px 1fr 54px; min-height: 74px; }
       .table-header { grid-template-columns: 100px 1fr 54px; }
@@ -2790,7 +2888,7 @@ LEADERBOARD_HTML = """<!DOCTYPE html>
 
 <header class="site-header">
   <div class="header-inner">
-    <img class="logo" src="/static/aftershock-logo-new.png" alt="Aftershock Tiers">
+    <img class="logo" src="/static/aftershock-logo-cropped.png" alt="Aftershock Tiers">
     <nav class="nav-links">
       <span class="nav-link active">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -2812,7 +2910,7 @@ LEADERBOARD_HTML = """<!DOCTYPE html>
 <div class="tabs-wrap">
   <div class="tabs-inner" id="tabsInner">
     <div class="tab active" data-tab="overall" onclick="switchTab('overall', this)">
-      <img class="tab-icon" src="https://cdn.discordapp.com/emojis/1511391682451472504.png" alt="Overall">
+      <span class="tab-icon" style="font-size:22px;display:flex;align-items:center;justify-content:center;"><img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f3c6.png" width="26" height="26" style="vertical-align:middle;image-rendering:crisp-edges;" alt="🏆"></span>
       Overall
     </div>
     <div class="tab" data-tab="sword" onclick="switchTab('sword', this)">
@@ -2950,7 +3048,16 @@ LEADERBOARD_HTML = """<!DOCTYPE html>
 </div>
 
 <div id="player-count" class="player-count"></div>
-<div class="cards-wrap" id="board"></div>
+<div class="cards-wrap">
+  <div class="desktop-table-header" id="desktopTableHeader">
+    <div class="dth-rank">#</div>
+    <div></div>
+    <div class="dth-player">Player</div>
+    <div class="dth-region">Region</div>
+    <div class="dth-tiers">Tiers</div>
+  </div>
+  <div id="board"></div>
+</div>
 
 <footer>
   <span id="ts"></span> &nbsp;&middot;&nbsp; Points determine rank &nbsp;&middot;&nbsp; discord.gg/4KdjtN6eE &nbsp;&middot;&nbsp; <span>Aftershock Tiers &copy; 2026</span>
@@ -3155,7 +3262,7 @@ LEADERBOARD_HTML = """<!DOCTYPE html>
       const remaining = currentList.length - visibleCount;
       const btn = document.createElement('div');
       btn.id = 'load-more-btn';
-      btn.style.cssText = 'text-align:center;padding:1.5rem 1rem 2rem;grid-column:1/-1;';
+      btn.style.cssText = 'text-align:center;padding:1.5rem 1rem 2rem;';
       btn.innerHTML = `<button onclick="appendOverallPage()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:999px;color:var(--text);font-family:var(--sans);font-size:13px;font-weight:600;padding:10px 28px;cursor:pointer;transition:border-color 0.15s;" onmouseover="this.style.borderColor='var(--violet-lt)'" onmouseout="this.style.borderColor='var(--border2)'">Load more <span style="color:var(--muted)">(${remaining} remaining)</span></button>`;
       board.parentElement.appendChild(btn);
     }
@@ -3189,7 +3296,6 @@ LEADERBOARD_HTML = """<!DOCTYPE html>
     currentTab = tab;
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
-    document.getElementById('board').classList.toggle('gm-mode', tab !== 'overall');
     renderCurrentView();
   }
 
