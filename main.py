@@ -25,73 +25,69 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 
 DATA_FILE = "tiers_data.json"
 
-GITHUB_OWNER = "shadyy000777-commits"
-GITHUB_REPO  = "My-site"
-GITHUB_FILE  = "tiers_data.json"
+GITHUB_OWNER     = "shadyy000777-commits"
+GITHUB_REPO      = "My-site"           # Netlify site
+GITHUB_REPO_CODE = "AFTERSHOCK-TIERS"  # Railway / code repo
+GITHUB_FILE      = "tiers_data.json"
+
+
+async def _push_content_to_repo(session: aiohttp.ClientSession, repo: str,
+                                  github_path: str, content_b64: str,
+                                  commit_msg: str, token: str) -> bool:
+    """Push base64-encoded content to a specific GitHub repo. Returns True on success."""
+    url = f"https://api.github.com/repos/{GITHUB_OWNER}/{repo}/contents/{github_path}"
+    headers = {"Authorization": f"token {token}", "Accept": "application/vnd.github.v3+json"}
+    for attempt in range(3):
+        async with session.get(url, headers=headers) as r:
+            sha = (await r.json()).get("sha") if r.status == 200 else None
+        body = {"message": commit_msg, "content": content_b64}
+        if sha:
+            body["sha"] = sha
+        async with session.put(url, headers=headers, json=body) as r:
+            if r.status in (200, 201):
+                return True
+            elif r.status == 409 and attempt < 2:
+                await asyncio.sleep(2)
+            else:
+                print(f"[GitHub sync] Failed {github_path} → {repo}: HTTP {r.status}")
+                return False
+    return False
+
 
 async def _push_data_to_github():
     token = os.getenv("GITHUB_TOKEN")
     if not token:
         return
     try:
-        url = f"https://api.github.com/repos/{GITHUB_OWNER}/{GITHUB_REPO}/contents/{GITHUB_FILE}"
-        headers = {
-            "Authorization": f"token {token}",
-            "Accept": "application/vnd.github.v3+json",
-        }
         with open(DATA_FILE, "rb") as f:
             content = base64.b64encode(f.read()).decode()
         async with aiohttp.ClientSession() as session:
-            for attempt in range(3):
-                async with session.get(url, headers=headers) as r:
-                    sha = (await r.json()).get("sha") if r.status == 200 else None
-                body = {"message": "Auto-sync: player data updated", "content": content}
-                if sha:
-                    body["sha"] = sha
-                async with session.put(url, headers=headers, json=body) as r:
-                    if r.status in (200, 201):
-                        print("[GitHub sync] tiers_data.json pushed to GitHub ✅")
-                        return
-                    elif r.status == 409 and attempt < 2:
-                        print(f"[GitHub sync] 409 on tiers_data.json, retrying (attempt {attempt + 1})...")
-                        await asyncio.sleep(2)
-                    else:
-                        print(f"[GitHub sync] Failed: HTTP {r.status}")
-                        return
+            for repo in (GITHUB_REPO, GITHUB_REPO_CODE):
+                ok = await _push_content_to_repo(
+                    session, repo, GITHUB_FILE, content,
+                    "Auto-sync: player data updated", token
+                )
+                if ok:
+                    print(f"[GitHub sync] tiers_data.json → {repo} ✅")
     except Exception as e:
         print(f"[GitHub sync] Error: {e}")
 
 
 async def _push_file_to_github(github_path: str, local_path: str, commit_msg: str):
-    """Push any local file to GitHub repo at the given path. Retries once on 409 conflict."""
+    """Push any local file to GitHub (both repos). Retries on 409 conflict."""
     token = os.getenv("GITHUB_TOKEN")
     if not token:
         return
     try:
-        url = f"https://api.github.com/repos/{GITHUB_OWNER}/{GITHUB_REPO}/contents/{github_path}"
-        headers = {
-            "Authorization": f"token {token}",
-            "Accept": "application/vnd.github.v3+json",
-        }
         with open(local_path, "rb") as f:
             content = base64.b64encode(f.read()).decode()
         async with aiohttp.ClientSession() as session:
-            for attempt in range(3):
-                async with session.get(url, headers=headers) as r:
-                    sha = (await r.json()).get("sha") if r.status == 200 else None
-                body = {"message": commit_msg, "content": content}
-                if sha:
-                    body["sha"] = sha
-                async with session.put(url, headers=headers, json=body) as r:
-                    if r.status in (200, 201):
-                        print(f"[GitHub sync] {github_path} pushed to GitHub ✅")
-                        return
-                    elif r.status == 409 and attempt < 2:
-                        print(f"[GitHub sync] 409 conflict for {github_path}, retrying (attempt {attempt + 1})...")
-                        await asyncio.sleep(2)
-                    else:
-                        print(f"[GitHub sync] Failed to push {github_path}: HTTP {r.status}")
-                        return
+            for repo in (GITHUB_REPO, GITHUB_REPO_CODE):
+                ok = await _push_content_to_repo(
+                    session, repo, github_path, content, commit_msg, token
+                )
+                if ok:
+                    print(f"[GitHub sync] {github_path} → {repo} ✅")
     except Exception as e:
         print(f"[GitHub sync] Error pushing {github_path}: {e}")
 
@@ -114,29 +110,23 @@ async def _push_website_to_github():
 
 
 async def _push_image_to_github(filename: str, img_bytes: bytes):
-    """Push a skin image to GitHub repo under skins/ so Netlify can serve it."""
+    """Push a skin image to both GitHub repos under skins/ so all sites can serve it."""
     token = os.getenv("GITHUB_TOKEN")
     if not token:
         return
     try:
-        github_path = f"skins/{filename}"
-        url = f"https://api.github.com/repos/{GITHUB_OWNER}/{GITHUB_REPO}/contents/{github_path}"
-        headers = {
-            "Authorization": f"token {token}",
-            "Accept": "application/vnd.github.v3+json",
-        }
         content = base64.b64encode(img_bytes).decode()
         async with aiohttp.ClientSession() as session:
-            async with session.get(url, headers=headers) as r:
-                sha = (await r.json()).get("sha") if r.status == 200 else None
-            body = {"message": f"Upload skin: {filename}", "content": content}
-            if sha:
-                body["sha"] = sha
-            async with session.put(url, headers=headers, json=body) as r:
-                if r.status not in (200, 201):
-                    print(f"[GitHub image] Failed to push {filename}: HTTP {r.status}")
-                else:
-                    print(f"[GitHub image] {filename} pushed to GitHub ✅")
+            for repo, path in [
+                (GITHUB_REPO,      f"skins/{filename}"),
+                (GITHUB_REPO_CODE, f"static/skins/{filename}"),
+            ]:
+                ok = await _push_content_to_repo(
+                    session, repo, path, content,
+                    f"Upload skin: {filename}", token
+                )
+                if ok:
+                    print(f"[GitHub image] {filename} → {repo} ✅")
     except Exception as e:
         print(f"[GitHub image] Error pushing {filename}: {e}")
 
