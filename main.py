@@ -3296,6 +3296,8 @@ LEADERBOARD_HTML = """<!DOCTYPE html>
     currentTab = tab;
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
+    const dth = document.getElementById('desktopTableHeader');
+    if (dth) dth.style.display = tab === 'overall' ? '' : 'none';
     renderCurrentView();
   }
 
