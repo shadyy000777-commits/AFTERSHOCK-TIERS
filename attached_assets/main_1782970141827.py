@@ -1,3 +1,6 @@
+Here you go! Copy everything below:
+
+```python
 """
 MCTiers Discord Bot
 ===================
