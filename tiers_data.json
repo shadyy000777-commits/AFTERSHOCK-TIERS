@@ -2295,6 +2295,14 @@
       "region": "AS",
       "account_type": "Bedrock",
       "verified_at": "2026-06-30T06:11:23.515547"
+    },
+    "1458445214858608703": {
+      "discord_id": "1458445214858608703",
+      "discord_name": "1nvincibl3e",
+      "minecraft_username": "1nvincibl3e",
+      "region": "AS",
+      "account_type": "Java",
+      "verified_at": "2026-07-02T13:08:59.887497"
     }
   },
   "waitlist": {
@@ -2304,7 +2312,8 @@
     ],
     "NethOP": [],
     "Mace": [
-      "1368160511933288448"
+      "1368160511933288448",
+      "1458445214858608703"
     ],
     "Axe": [],
     "Pot": [],
@@ -2320,8 +2329,8 @@
       "message_id": 1513489804652707971
     },
     "Mace": {
-      "channel_id": 1521397758819569764,
-      "message_id": 1521397760769785887
+      "channel_id": 1522227621679730758,
+      "message_id": 1522227623248531497
     },
     "Sword": {
       "channel_id": 1522113419183001601,
