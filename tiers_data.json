@@ -397,6 +397,20 @@
         "updated_at": "2026-06-30T07:21:23.365349",
         "updated_by": "chad__007"
       }
+    },
+    "<@999158007843782788>": {
+      "sword": {
+        "tier": "HT4",
+        "updated_at": "2026-07-02T12:45:40.886551",
+        "updated_by": "tosu_tofu"
+      }
+    },
+    "tousif666": {
+      "mace": {
+        "tier": "LT4",
+        "updated_at": "2026-07-02T12:46:21.048348",
+        "updated_by": "tosu_tofu"
+      }
     }
   },
   "tests": [
@@ -1947,6 +1961,30 @@
       "notes": "",
       "judged_by": "anxull_",
       "tested_at": "2026-06-30T08:19:51.315873"
+    },
+    {
+      "id": 130,
+      "username": "<@999158007843782788>",
+      "tester_name": "TOUSIF666",
+      "gamemode": "sword",
+      "tested_tier": "HT4",
+      "rank_before": "Unranked",
+      "result": "passed",
+      "notes": "",
+      "judged_by": "tosu_tofu",
+      "tested_at": "2026-07-02T12:45:40.886551"
+    },
+    {
+      "id": 131,
+      "username": "TOUSIF666",
+      "tester_name": "<@911138620725952522>",
+      "gamemode": "mace",
+      "tested_tier": "LT4",
+      "rank_before": "Unranked",
+      "result": "passed",
+      "notes": "",
+      "judged_by": "tosu_tofu",
+      "tested_at": "2026-07-02T12:46:21.048348"
     }
   ],
   "profiles": {
