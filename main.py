@@ -26,8 +26,9 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 DATA_FILE = "tiers_data.json"
 
 GITHUB_OWNER     = "shadyy000777-commits"
-GITHUB_REPO      = "My-site"           # Netlify site
+GITHUB_REPO      = "My-site"           # Netlify site (original)
 GITHUB_REPO_CODE = "AFTERSHOCK-TIERS"  # Railway / code repo
+GITHUB_REPO_IDX  = "INDEX"             # New Netlify repo
 GITHUB_FILE      = "tiers_data.json"
 
 
@@ -62,7 +63,7 @@ async def _push_data_to_github():
         with open(DATA_FILE, "rb") as f:
             content = base64.b64encode(f.read()).decode()
         async with aiohttp.ClientSession() as session:
-            for repo in (GITHUB_REPO, GITHUB_REPO_CODE):
+            for repo in (GITHUB_REPO, GITHUB_REPO_CODE, GITHUB_REPO_IDX):
                 ok = await _push_content_to_repo(
                     session, repo, GITHUB_FILE, content,
                     "Auto-sync: player data updated", token
@@ -82,7 +83,7 @@ async def _push_file_to_github(github_path: str, local_path: str, commit_msg: st
         with open(local_path, "rb") as f:
             content = base64.b64encode(f.read()).decode()
         async with aiohttp.ClientSession() as session:
-            for repo in (GITHUB_REPO, GITHUB_REPO_CODE):
+            for repo in (GITHUB_REPO, GITHUB_REPO_CODE, GITHUB_REPO_IDX):
                 ok = await _push_content_to_repo(
                     session, repo, github_path, content, commit_msg, token
                 )
@@ -120,6 +121,7 @@ async def _push_image_to_github(filename: str, img_bytes: bytes):
             for repo, path in [
                 (GITHUB_REPO,      f"skins/{filename}"),
                 (GITHUB_REPO_CODE, f"static/skins/{filename}"),
+                (GITHUB_REPO_IDX,  f"static/skins/{filename}"),
             ]:
                 ok = await _push_content_to_repo(
                     session, repo, path, content,
