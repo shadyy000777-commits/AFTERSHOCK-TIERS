@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "oPckkDFd2TmMgUCESEAmu"
+uri = "file://aftershock-website.zip"
+type = "unspecified"
+title = "Aftershock Website Source Code"
