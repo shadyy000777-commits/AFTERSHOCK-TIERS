@@ -2002,6 +2002,18 @@
       "notes": "",
       "judged_by": "tosu_tofu",
       "tested_at": "2026-07-02T12:55:24.142602"
+    },
+    {
+      "id": 133,
+      "username": "<@1494236355063054376>",
+      "tester_name": "shady",
+      "gamemode": "MACE",
+      "tested_tier": "HT1",
+      "rank_before": "Unranked",
+      "result": "passed",
+      "notes": "",
+      "judged_by": "im_shaddy_777",
+      "tested_at": "2026-07-02T14:48:36.043771"
     }
   ],
   "profiles": {
@@ -2303,12 +2315,39 @@
       "region": "AS",
       "account_type": "Java",
       "verified_at": "2026-07-02T13:08:59.887497"
+    },
+    "1252197239766515732": {
+      "discord_id": "1252197239766515732",
+      "discord_name": "lt5.swordplayer",
+      "minecraft_username": "floopaa",
+      "region": "EU",
+      "account_type": "Java",
+      "verified_at": "2026-07-02T15:25:01.822422"
+    },
+    "1455899133284978802": {
+      "discord_id": "1455899133284978802",
+      "discord_name": "justhims",
+      "minecraft_username": "CocoCPVP",
+      "region": "EU",
+      "account_type": "Java",
+      "verified_at": "2026-07-02T15:27:30.100405"
+    },
+    "1521161616140533820": {
+      "discord_id": "1521161616140533820",
+      "discord_name": "ayushx6955.",
+      "minecraft_username": "AYUSHxPRIME",
+      "region": "AS",
+      "account_type": "Java",
+      "verified_at": "2026-07-02T15:32:32.572488"
     }
   },
   "waitlist": {
     "SMP": [],
     "Sword": [
-      "1494236355063054376"
+      "1494236355063054376",
+      "1252197239766515732",
+      "1455899133284978802",
+      "1521161616140533820"
     ],
     "NethOP": [],
     "Mace": [
