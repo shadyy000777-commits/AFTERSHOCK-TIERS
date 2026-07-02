@@ -6,3 +6,9 @@ id = "oPckkDFd2TmMgUCESEAmu"
 uri = "file://aftershock-website.zip"
 type = "unspecified"
 title = "Aftershock Website Source Code"
+
+[[outputs]]
+id = "DDE9LVt45KxOn31PQQ4XD"
+uri = "file://website_code.txt"
+type = "text"
+title = "index.html — Exact website code"
