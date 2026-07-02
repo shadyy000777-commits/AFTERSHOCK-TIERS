@@ -121,7 +121,7 @@ async def _push_image_to_github(filename: str, img_bytes: bytes):
             for repo, path in [
                 (GITHUB_REPO,      f"skins/{filename}"),
                 (GITHUB_REPO_CODE, f"static/skins/{filename}"),
-                (GITHUB_REPO_IDX,  f"static/skins/{filename}"),
+                (GITHUB_REPO_IDX,  f"skins/{filename}"),
             ]:
                 ok = await _push_content_to_repo(
                     session, repo, path, content,
