@@ -1,5 +1,8 @@
+[phases.setup]
+nixPkgs = ["python312", "python312Packages.pip"]
+
 [phases.install]
-cmds = ["pip install -r requirements-web.txt"]
+cmds = ["python3.12 -m pip install -r requirements-web.txt"]
 
 [start]
-cmd = "python railway_server.py"
+cmd = "python3.12 railway_server.py"
