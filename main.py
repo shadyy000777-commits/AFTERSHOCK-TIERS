@@ -3410,12 +3410,6 @@ LEADERBOARD_HTML = """<!DOCTYPE html>
 </html>"""
 
 
-@web_app.route("/ping")
-def ping():
-    from flask import jsonify
-    return jsonify({"status": "alive"})
-
-
 @web_app.route("/")
 def leaderboard_page():
     from flask import make_response
