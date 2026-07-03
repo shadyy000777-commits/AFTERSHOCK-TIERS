@@ -145,19 +145,6 @@
         "updated_by": "chad__007"
       }
     },
-    "<@1372557957874847804>": {
-      "nethop": {
-        "tier": "LT5",
-        "updated_at": "2026-06-13T04:13:56.772378",
-        "updated_by": "im_shaddy_777"
-      },
-      "mace": {
-        "tier": "LT5",
-        "updated_at": "2026-06-13T04:14:25.663176",
-        "updated_by": "im_shaddy_777"
-      },
-      "region": "AS"
-    },
     "<@1432003317667598377>": {
       "mace": {
         "tier": "HT5",
@@ -245,46 +232,6 @@
         "updated_by": "chad__007"
       }
     },
-    "<@1504923616960319528>": {
-      "sword": {
-        "tier": "LT5",
-        "updated_at": "2026-06-13T04:12:21.558588",
-        "updated_by": "im_shaddy_777"
-      },
-      "axe": {
-        "tier": "HT5",
-        "updated_at": "2026-06-15T14:54:14.726903",
-        "updated_by": "tosu_tofu"
-      }
-    },
-    "<@1425775560658780321>": {
-      "nethop": {
-        "tier": "LT5",
-        "updated_at": "2026-06-13T04:12:51.990237",
-        "updated_by": "im_shaddy_777"
-      },
-      "region": "AS"
-    },
-    "<@1499046947707818054>": {
-      "sword": {
-        "tier": "LT5",
-        "updated_at": "2026-06-13T04:13:31.945748",
-        "updated_by": "im_shaddy_777"
-      },
-      "region": "AS"
-    },
-    "<@1475009979663777994>": {
-      "sword": {
-        "tier": "HT5",
-        "updated_at": "2026-06-13T04:15:55.027263",
-        "updated_by": "im_shaddy_777"
-      },
-      "crystal": {
-        "tier": "LT5",
-        "updated_at": "2026-06-13T04:16:30.226940",
-        "updated_by": "im_shaddy_777"
-      }
-    },
     "<@1255556131732848642>": {
       "sword": {
         "tier": "HT5",
@@ -334,13 +281,6 @@
         "tier": "LT4",
         "updated_at": "2026-06-22T02:15:29.549476",
         "updated_by": "im_shaddy_777"
-      }
-    },
-    "<@907613599189577738>": {
-      "crystal": {
-        "tier": "LT3",
-        "updated_at": "2026-06-22T02:49:54.981350",
-        "updated_by": "outbreak_8413"
       }
     },
     "<@924938841658372157>": {
@@ -413,20 +353,33 @@
         "tier": "HT4",
         "updated_at": "2026-07-02T18:15:14.065013",
         "updated_by": "im_shaddy_777"
-      }
-    },
-    "tousif666": {
-      "mace": {
-        "tier": "LT4",
-        "updated_at": "2026-07-02T12:46:21.048348",
-        "updated_by": "tosu_tofu"
-      }
+      },
+      "region": "AS"
     },
     "<@809795886229880882>": {
       "mace": {
         "tier": "HT4",
         "updated_at": "2026-07-03T08:56:09.747661",
         "updated_by": "chad__007"
+      }
+    },
+    "<@1403981477305126942>": {
+      "crystal": {
+        "tier": "HT5",
+        "updated_at": "2026-07-03T10:02:50.067700",
+        "updated_by": "im_shaddy_777"
+      },
+      "mace": {
+        "tier": "HT5",
+        "updated_at": "2026-07-03T10:24:31.989688",
+        "updated_by": "chad__007"
+      }
+    },
+    "<@1521161616140533820>": {
+      "sword": {
+        "tier": "LT5",
+        "updated_at": "2026-07-03T10:03:08.632825",
+        "updated_by": "im_shaddy_777"
       }
     }
   },
@@ -2062,6 +2015,42 @@
       "notes": "",
       "judged_by": "chad__007",
       "tested_at": "2026-07-03T08:56:09.747661"
+    },
+    {
+      "id": 137,
+      "username": "<@1403981477305126942>",
+      "tester_name": "SHADDY",
+      "gamemode": "CRYSTAL",
+      "tested_tier": "HT5",
+      "rank_before": "Unranked",
+      "result": "passed",
+      "notes": "",
+      "judged_by": "im_shaddy_777",
+      "tested_at": "2026-07-03T10:02:50.067700"
+    },
+    {
+      "id": 138,
+      "username": "<@1521161616140533820>",
+      "tester_name": "SHADDY",
+      "gamemode": "SWORD",
+      "tested_tier": "LT5",
+      "rank_before": "Unranked",
+      "result": "passed",
+      "notes": "",
+      "judged_by": "im_shaddy_777",
+      "tested_at": "2026-07-03T10:03:08.632825"
+    },
+    {
+      "id": 139,
+      "username": "<@1403981477305126942>",
+      "tester_name": "CHAD",
+      "gamemode": "MACE",
+      "tested_tier": "HT5",
+      "rank_before": "Unranked",
+      "result": "passed",
+      "notes": "",
+      "judged_by": "chad__007",
+      "tested_at": "2026-07-03T10:24:31.989688"
     }
   ],
   "profiles": {
@@ -2072,7 +2061,7 @@
       "region": "AS",
       "account_type": "JAVA",
       "verified_at": "2026-06-22T03:00:33.359234",
-      "skin_url": "/skins/1494236355063054376.png"
+      "skin_url": "/skins/1494236355063054376.webp"
     },
     "1438176960869175417": {
       "discord_id": "1438176960869175417",
@@ -2116,7 +2105,8 @@
       "minecraft_username": "hackerplayzzz",
       "region": "AS",
       "account_type": "Java",
-      "verified_at": "2026-07-03T07:30:04.742435"
+      "verified_at": "2026-07-03T07:30:04.742435",
+      "skin_url": "/skins/865454514277974017.webp"
     },
     "1434611390617751744": {
       "discord_id": "1434611390617751744",
@@ -2170,7 +2160,7 @@
       "region": "AS",
       "account_type": "Java",
       "verified_at": "2026-07-02T17:07:16.753761",
-      "skin_url": "/skins/911138620725952522.png"
+      "skin_url": "/skins/911138620725952522.webp"
     },
     "1355163646048600196": {
       "discord_id": "1355163646048600196",
@@ -2304,7 +2294,8 @@
       "minecraft_username": "Rex",
       "region": "AS",
       "account_type": "Java",
-      "verified_at": "2026-07-02T17:01:58.080778"
+      "verified_at": "2026-07-02T17:01:58.080778",
+      "skin_url": "/skins/1255556131732848642.webp"
     },
     "1428761095744524339": {
       "discord_id": "1428761095744524339",
@@ -2321,7 +2312,8 @@
       "minecraft_username": "M4rpheus_",
       "region": "AS",
       "account_type": "Java",
-      "verified_at": "2026-06-29T05:25:52.380189"
+      "verified_at": "2026-06-29T05:25:52.380189",
+      "skin_url": "/skins/1454784089516281890.webp"
     },
     "1504876561747410945": {
       "discord_id": "1504876561747410945",
@@ -2329,7 +2321,8 @@
       "minecraft_username": "itxcreepV2_",
       "region": "AS",
       "account_type": "Java",
-      "verified_at": "2026-06-29T07:01:59.537383"
+      "verified_at": "2026-06-29T07:01:59.537383",
+      "skin_url": "/skins/1504876561747410945.webp"
     },
     "1464332775250329601": {
       "discord_id": "1464332775250329601",
@@ -2338,7 +2331,7 @@
       "region": "AS",
       "account_type": "Java",
       "verified_at": "2026-06-29T14:13:59.633640",
-      "skin_url": "/skins/1464332775250329601.png"
+      "skin_url": "/skins/1464332775250329601.webp"
     },
     "1460654104115154976": {
       "discord_id": "1460654104115154976",
@@ -2346,7 +2339,8 @@
       "minecraft_username": "MeowSpider",
       "region": "AS",
       "account_type": "Java",
-      "verified_at": "2026-06-30T05:47:02.693369"
+      "verified_at": "2026-06-30T05:47:02.693369",
+      "skin_url": "/skins/1460654104115154976.webp"
     },
     "1368160511933288448": {
       "discord_id": "1368160511933288448",
@@ -2354,7 +2348,8 @@
       "minecraft_username": "Himangshu1920",
       "region": "AS",
       "account_type": "Bedrock",
-      "verified_at": "2026-06-30T06:11:23.515547"
+      "verified_at": "2026-06-30T06:11:23.515547",
+      "skin_url": "/skins/1368160511933288448.webp"
     },
     "1458445214858608703": {
       "discord_id": "1458445214858608703",
@@ -2362,7 +2357,8 @@
       "minecraft_username": "1nvincibl3e",
       "region": "AS",
       "account_type": "Java",
-      "verified_at": "2026-07-02T13:08:59.887497"
+      "verified_at": "2026-07-02T13:08:59.887497",
+      "skin_url": "/skins/1458445214858608703.webp"
     },
     "1252197239766515732": {
       "discord_id": "1252197239766515732",
@@ -2370,7 +2366,8 @@
       "minecraft_username": "floopaa",
       "region": "EU",
       "account_type": "Java",
-      "verified_at": "2026-07-02T15:25:01.822422"
+      "verified_at": "2026-07-02T15:25:01.822422",
+      "skin_url": "/skins/1252197239766515732.webp"
     },
     "1455899133284978802": {
       "discord_id": "1455899133284978802",
@@ -2378,7 +2375,8 @@
       "minecraft_username": "CocoCPVP",
       "region": "EU",
       "account_type": "Java",
-      "verified_at": "2026-07-02T15:27:30.100405"
+      "verified_at": "2026-07-02T15:27:30.100405",
+      "skin_url": "/skins/1455899133284978802.webp"
     },
     "1521161616140533820": {
       "discord_id": "1521161616140533820",
@@ -2386,7 +2384,8 @@
       "minecraft_username": "AYUSHxPRIME",
       "region": "AS",
       "account_type": "Java",
-      "verified_at": "2026-07-02T15:32:32.572488"
+      "verified_at": "2026-07-02T15:32:32.572488",
+      "skin_url": "/skins/1521161616140533820.webp"
     },
     "1512840960122294308": {
       "discord_id": "1512840960122294308",
@@ -2394,7 +2393,8 @@
       "minecraft_username": "UhmVortx",
       "region": "NA",
       "account_type": "Java",
-      "verified_at": "2026-07-02T19:38:19.352289"
+      "verified_at": "2026-07-02T19:38:19.352289",
+      "skin_url": "/skins/1512840960122294308.webp"
     },
     "809795886229880882": {
       "discord_id": "809795886229880882",
@@ -2402,7 +2402,8 @@
       "minecraft_username": "Unsteadyy_",
       "region": "AS",
       "account_type": "Java",
-      "verified_at": "2026-07-03T05:10:12.967555"
+      "verified_at": "2026-07-03T05:10:12.967555",
+      "skin_url": "/skins/809795886229880882.webp"
     },
     "1403981477305126942": {
       "discord_id": "1403981477305126942",
@@ -2410,7 +2411,8 @@
       "minecraft_username": "ZORO_XM",
       "region": "AS",
       "account_type": "Java",
-      "verified_at": "2026-07-03T07:31:44.026771"
+      "verified_at": "2026-07-03T07:31:44.026771",
+      "skin_url": "/skins/1403981477305126942.webp"
     },
     "1389972782020034601": {
       "discord_id": "1389972782020034601",
@@ -2418,7 +2420,8 @@
       "minecraft_username": "Hunter44781",
       "region": "EU",
       "account_type": "Java",
-      "verified_at": "2026-07-03T07:34:54.879667"
+      "verified_at": "2026-07-03T07:34:54.879667",
+      "skin_url": "/skins/1389972782020034601.webp"
     },
     "1479860922095763667": {
       "discord_id": "1479860922095763667",
@@ -2426,7 +2429,8 @@
       "minecraft_username": "berkay6925",
       "region": "EU",
       "account_type": "Java",
-      "verified_at": "2026-07-03T07:53:10.388680"
+      "verified_at": "2026-07-03T07:53:10.388680",
+      "skin_url": "/skins/1479860922095763667.webp"
     }
   },
   "waitlist": {
@@ -2436,14 +2440,13 @@
     "Sword": [
       "1521161616140533820",
       "1389972782020034601",
-      "809795886229880882"
+      "809795886229880882",
+      "1479860922095763667"
     ],
     "NethOP": [
       "1494236355063054376"
     ],
-    "Mace": [
-      "809795886229880882"
-    ],
+    "Mace": [],
     "Axe": [
       "1494236355063054376"
     ],
@@ -2507,7 +2510,7 @@
     "queue": "1513371570494636053",
     "kickfromqueue": "1513371570494636053",
     "leaderboard": "1474990136365289706",
-    "profile": "1474990338090467378",
+    "profile": "1505290918952046707",
     "tierlist": "1505290918952046707",
     "image": "1474990338090467378",
     "removeplayerrole": "1513371570494636053"
@@ -2549,7 +2552,8 @@
     "1454784089516281890": "Aarav...",
     "1464332775250329601": "Itznyx\u2728",
     "1368160511933288448": "Himangshu1920",
-    "999158007843782788": "Shadowyn"
+    "999158007843782788": "Shadowyn",
+    "809795886229880882": "Diddler"
   },
   "gamemode_roles": {
     "Sword": "1521360610195931277",
