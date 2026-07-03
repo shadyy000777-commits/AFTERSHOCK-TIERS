@@ -12,3 +12,9 @@ id = "DDE9LVt45KxOn31PQQ4XD"
 uri = "file://website_code.txt"
 type = "text"
 title = "index.html — Exact website code"
+
+[[outputs]]
+id = "cM-4cWsJVaRLf6iT2m8Rq"
+uri = "file://aftershock_backup_20260703_080740.zip"
+type = "unspecified"
+title = "Aftershock Tiers — Full Backup"
