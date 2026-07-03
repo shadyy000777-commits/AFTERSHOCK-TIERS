@@ -24,6 +24,7 @@ GAMEMODE_EMOJIS = {
     "Mace":    "<:mace1:1466809319810142260>",
     "Crystal": "<:Crystal:1512168746918084679>",
     "Vanilla": "<:Crystal:1512168746918084679>",
+    "Spear":   "<:spear:1520344085003632660>",
 }
 
 # Fallback 2-letter abbreviation shown in profile circles
@@ -40,6 +41,7 @@ GAMEMODE_ABBREV = {
     "cart":    "CA",
     "dia smp": "DS",
     "crystal": "CR",
+    "spear":   "SP",
 }
 
 

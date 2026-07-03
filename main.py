@@ -360,7 +360,7 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 tree = bot.tree
 
 
-DEFAULT_GAMEMODES = ["Sword", "Axe", "NethOP", "UHC", "SMP", "Pot", "Mace", "Crystal"]
+DEFAULT_GAMEMODES = ["Sword", "Axe", "NethOP", "UHC", "SMP", "Pot", "Mace", "Crystal", "Spear"]
 
 active_queues: dict[int, "QueueView"] = {}
 
