@@ -2097,8 +2097,7 @@
       "minecraft_username": "hackerplayzzz",
       "region": "AS",
       "account_type": "Java",
-      "verified_at": "2026-06-30T06:01:36.719876",
-      "skin_url": "/skins/865454514277974017.webp"
+      "verified_at": "2026-07-03T07:30:04.742435"
     },
     "1434611390617751744": {
       "discord_id": "1434611390617751744",
@@ -2385,15 +2384,28 @@
       "region": "AS",
       "account_type": "Java",
       "verified_at": "2026-07-03T05:10:12.967555"
+    },
+    "1403981477305126942": {
+      "discord_id": "1403981477305126942",
+      "discord_name": "zoro66464",
+      "minecraft_username": "ZORO_XM",
+      "region": "AS",
+      "account_type": "Java",
+      "verified_at": "2026-07-03T07:31:44.026771"
+    },
+    "1389972782020034601": {
+      "discord_id": "1389972782020034601",
+      "discord_name": "hunter10803._61213",
+      "minecraft_username": "Hunter44781",
+      "region": "EU",
+      "account_type": "Java",
+      "verified_at": "2026-07-03T07:34:54.879667"
     }
   },
   "waitlist": {
     "SMP": [],
     "Sword": [
-      "1494236355063054376",
-      "1252197239766515732",
-      "1455899133284978802",
-      "1521161616140533820"
+      "1494236355063054376"
     ],
     "NethOP": [],
     "Mace": [
@@ -2402,14 +2414,19 @@
       "809795886229880882"
     ],
     "Axe": [
-      "1512840960122294308"
+      "1512840960122294308",
+      "865454514277974017"
     ],
     "Pot": [],
     "UHC": [],
     "Vanilla": [],
     "DIA SMP": [],
     "CART": [],
-    "Crystal": []
+    "Crystal": [
+      "865454514277974017",
+      "1403981477305126942"
+    ],
+    "Spear": []
   },
   "waitlist_channels": {
     "CART": {
@@ -2421,8 +2438,16 @@
       "message_id": 1522469580977475606
     },
     "Sword": {
-      "channel_id": 1522113419183001601,
-      "message_id": 1522113421179486290
+      "channel_id": 1522504376441376969,
+      "message_id": 1522504378102190091
+    },
+    "Crystal": {
+      "channel_id": 1522505144741265520,
+      "message_id": 1522505146636959845
+    },
+    "Axe": {
+      "channel_id": 1522504715320037496,
+      "message_id": 1522504717052153979
     }
   },
   "waitlist_category_id": "1513162707614830612",

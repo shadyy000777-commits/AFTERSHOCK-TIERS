@@ -618,6 +618,17 @@ class GamemodeButton(discord.ui.Button):
             if interaction.guild:
                 try:
                     await update_waitlist_channel(interaction.guild, self.gamemode, data)
+                    # Ping testers with the gamemode role in the waitlist channel
+                    tester_role_id = data.get("gamemode_roles", {}).get(self.gamemode)
+                    ch_info = data.get("waitlist_channels", {}).get(self.gamemode, {})
+                    wl_channel = interaction.guild.get_channel(ch_info.get("channel_id", 0)) if ch_info.get("channel_id") else None
+                    if tester_role_id and wl_channel:
+                        tester_role = interaction.guild.get_role(int(tester_role_id))
+                        if tester_role:
+                            await wl_channel.send(
+                                f"{tester_role.mention} 📥 **{mc_name}** joined the **{self.gamemode}** waitlist! ({len(queue)} in queue)",
+                                allowed_mentions=discord.AllowedMentions(roles=True),
+                            )
                 except Exception as ch_err:
                     print(f"Channel update error: {ch_err}")
         except Exception as e:
@@ -643,7 +654,7 @@ class DeleteWaitlistButton(discord.ui.Button):
     def __init__(self, gamemode: str):
         safe = gamemode.replace(" ", "_")
         super().__init__(
-            label="🗑️ Delete Waitlist",
+            label="🗑️ Clear Waitlist",
             style=discord.ButtonStyle.danger,
             custom_id=f"delete_waitlist_{safe}",
         )
@@ -658,7 +669,7 @@ class DeleteWaitlistButton(discord.ui.Button):
 
         if not (is_owner or has_role or is_admin):
             await interaction.response.send_message(
-                "❌ Only the server owner or staff with the **clearwaitlist** role can delete this waitlist.",
+                "❌ Only the server owner or staff with the **clearwaitlist** role can clear this waitlist.",
                 ephemeral=True,
             )
             return
@@ -666,16 +677,18 @@ class DeleteWaitlistButton(discord.ui.Button):
         await interaction.response.defer(ephemeral=True)
 
         data.setdefault("waitlist", {})[self.gamemode] = []
-        channels_data = data.get("waitlist_channels", {})
-        if self.gamemode in channels_data:
-            del channels_data[self.gamemode]
         save_data(data)
 
-        channel = interaction.channel
+        # Update the embed in the same channel (don't delete it — reuse it)
         try:
-            await channel.delete(reason=f"Waitlist for {self.gamemode} deleted by {interaction.user}")
-        except discord.HTTPException:
-            await interaction.followup.send("⚠️ Could not delete the channel. Please delete it manually.", ephemeral=True)
+            await update_waitlist_channel(interaction.guild, self.gamemode, data)
+        except Exception as e:
+            print(f"[DeleteWaitlist] Channel update error: {e}")
+
+        await interaction.followup.send(
+            f"✅ **{self.gamemode}** waitlist cleared. The channel is kept — new players can still join.",
+            ephemeral=True,
+        )
 
 
 class DeleteWaitlistView(discord.ui.View):
