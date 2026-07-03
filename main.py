@@ -604,21 +604,23 @@ class GamemodeButton(discord.ui.Button):
             save_data(data)
             mc_name = profile["minecraft_username"]
 
-            # Auto-assign gamemode role if configured
+            # Auto-assign gamemode role if configured (case-insensitive key match)
+            gm_roles = data.get("gamemode_roles", {})
+            gm_key_lower = self.gamemode.lower()
+            role_id = next((v for k, v in gm_roles.items() if k.lower() == gm_key_lower), None)
+
             role_assigned = None
-            if interaction.guild:
-                role_id = data.get("gamemode_roles", {}).get(self.gamemode)
-                if role_id:
-                    role = interaction.guild.get_role(int(role_id))
-                    if role:
-                        try:
-                            member = interaction.guild.get_member(interaction.user.id) or interaction.user
-                            await member.add_roles(role, reason=f"Joined {self.gamemode} waitlist via panel")
-                            role_assigned = role.name
-                        except discord.Forbidden:
-                            print(f"[GamemodeButton] Missing permission to assign role '{role.name}'")
-                        except Exception as re:
-                            print(f"[GamemodeButton] Role assign error: {re}")
+            if interaction.guild and role_id:
+                role = interaction.guild.get_role(int(role_id))
+                if role:
+                    try:
+                        member = interaction.guild.get_member(interaction.user.id) or interaction.user
+                        await member.add_roles(role, reason=f"Joined {self.gamemode} waitlist via panel")
+                        role_assigned = role.name
+                    except discord.Forbidden:
+                        print(f"[GamemodeButton] Missing permission to assign role '{role.name}'")
+                    except Exception as re:
+                        print(f"[GamemodeButton] Role assign error: {re}")
 
             role_line = f"\n🎭 You've been given the **{role_assigned}** role!" if role_assigned else ""
             await interaction.response.send_message(
@@ -629,10 +631,10 @@ class GamemodeButton(discord.ui.Button):
             if interaction.guild:
                 try:
                     await update_waitlist_channel(interaction.guild, self.gamemode, data)
-                    # Ping testers with the gamemode role in the waitlist channel
-                    tester_role_id = data.get("gamemode_roles", {}).get(self.gamemode)
+                    # Ping testers — case-insensitive role lookup
+                    tester_role_id = next((v for k, v in gm_roles.items() if k.lower() == gm_key_lower), None)
                     ch_info = data.get("waitlist_channels", {}).get(self.gamemode, {})
-                    wl_channel = interaction.guild.get_channel(ch_info.get("channel_id", 0)) if ch_info.get("channel_id") else None
+                    wl_channel = interaction.guild.get_channel(int(ch_info["channel_id"])) if ch_info.get("channel_id") else None
                     if tester_role_id and wl_channel:
                         tester_role = interaction.guild.get_role(int(tester_role_id))
                         if tester_role:
