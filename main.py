@@ -388,7 +388,7 @@ async def update_waitlist_channel(guild: discord.Guild, gamemode: str, data: dic
     channels_data = data.setdefault("waitlist_channels", {})
     info = channels_data.get(gamemode, {})
 
-    # Try cache first, then live API fetch before ever creating a new channel
+    # Try cache first, then live API fetch
     channel = None
     stored_id = info.get("channel_id")
     if stored_id:
@@ -397,9 +397,11 @@ async def update_waitlist_channel(guild: discord.Guild, gamemode: str, data: dic
             try:
                 channel = await guild.fetch_channel(int(stored_id))
             except (discord.NotFound, discord.HTTPException):
-                channel = None  # channel was manually deleted — create a new one
+                # Channel was manually deleted — do NOT recreate it, just stop
+                return
 
     if not channel:
+        # No stored channel at all — first time for this gamemode, create it
         safe_name = f"waitlist-{gamemode.lower().replace(' ', '-')}"
         overwrites = {
             guild.default_role: discord.PermissionOverwrite(
@@ -425,7 +427,7 @@ async def update_waitlist_channel(guild: discord.Guild, gamemode: str, data: dic
         channel = await guild.create_text_channel(
             name=safe_name,
             overwrites=overwrites,
-            topic=f"Waitlist for {gamemode} tier testing • Only the server owner can delete this channel.",
+            topic=f"Waitlist for {gamemode} tier testing.",
             category=category,
         )
         channels_data[gamemode] = {"channel_id": channel.id, "message_id": None}
