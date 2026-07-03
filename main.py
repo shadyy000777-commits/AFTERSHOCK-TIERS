@@ -388,7 +388,16 @@ async def update_waitlist_channel(guild: discord.Guild, gamemode: str, data: dic
     channels_data = data.setdefault("waitlist_channels", {})
     info = channels_data.get(gamemode, {})
 
-    channel = guild.get_channel(info.get("channel_id", 0)) if info.get("channel_id") else None
+    # Try cache first, then live API fetch before ever creating a new channel
+    channel = None
+    stored_id = info.get("channel_id")
+    if stored_id:
+        channel = guild.get_channel(int(stored_id))
+        if not channel:
+            try:
+                channel = await guild.fetch_channel(int(stored_id))
+            except (discord.NotFound, discord.HTTPException):
+                channel = None  # channel was manually deleted — create a new one
 
     if not channel:
         safe_name = f"waitlist-{gamemode.lower().replace(' ', '-')}"
