@@ -363,6 +363,18 @@
         "updated_at": "2026-07-03T14:35:37.969716",
         "updated_by": "im_shaddy_777"
       }
+    },
+    "<@1512840960122294308>": {
+      "mace": {
+        "tier": "LT3",
+        "updated_at": "2026-07-04T18:55:45.800061",
+        "updated_by": "im_shaddy_777"
+      },
+      "smp": {
+        "tier": "LT3",
+        "updated_at": "2026-07-04T18:55:59.460398",
+        "updated_by": "im_shaddy_777"
+      }
     }
   },
   "tests": [
@@ -2117,6 +2129,30 @@
       "notes": "",
       "judged_by": "hi.diddler",
       "tested_at": "2026-07-04T14:51:03.633464"
+    },
+    {
+      "id": 147,
+      "username": "<@1512840960122294308>",
+      "tester_name": "SHADDY",
+      "gamemode": "MACE",
+      "tested_tier": "LT3",
+      "rank_before": "Unranked",
+      "result": "passed",
+      "notes": "",
+      "judged_by": "im_shaddy_777",
+      "tested_at": "2026-07-04T18:55:45.800061"
+    },
+    {
+      "id": 148,
+      "username": "<@1512840960122294308>",
+      "tester_name": "SHADDY",
+      "gamemode": "SMP",
+      "tested_tier": "LT3",
+      "rank_before": "Unranked",
+      "result": "passed",
+      "notes": "",
+      "judged_by": "im_shaddy_777",
+      "tested_at": "2026-07-04T18:55:59.460398"
     }
   ],
   "profiles": {
@@ -2459,8 +2495,8 @@
       "minecraft_username": "UhmVortx",
       "region": "NA",
       "account_type": "Java",
-      "verified_at": "2026-07-02T19:38:19.352289",
-      "skin_url": "/skins/1512840960122294308.webp"
+      "verified_at": "2026-07-04T18:54:33.809870",
+      "skin_url": "/skins/1512840960122294308.png"
     },
     "809795886229880882": {
       "discord_id": "809795886229880882",
