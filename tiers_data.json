@@ -16,9 +16,9 @@
         "updated_by": "im_shaddy_777"
       },
       "axe": {
-        "tier": "LT4",
-        "updated_at": "2026-06-13T08:50:22.445433",
-        "updated_by": "chad__007"
+        "tier": "HT3",
+        "updated_at": "2026-07-05T10:57:54.465691",
+        "updated_by": "outbreak_8413"
       },
       "uhc": {
         "tier": "HT4",
@@ -381,6 +381,23 @@
         "tier": "LT5",
         "updated_at": "2026-07-05T07:08:23.296097",
         "updated_by": "ronakkumar8416"
+      }
+    },
+    "<@1495128184146886727>": {
+      "axe": {
+        "tier": "HT5",
+        "updated_at": "2026-07-05T10:49:04.437884",
+        "updated_by": "tosu_tofu"
+      },
+      "sword": {
+        "tier": "HT5",
+        "updated_at": "2026-07-05T10:49:21.225711",
+        "updated_by": "tosu_tofu"
+      },
+      "nethop": {
+        "tier": "HT5",
+        "updated_at": "2026-07-05T10:57:10.319080",
+        "updated_by": "tosu_tofu"
       }
     }
   },
@@ -2172,6 +2189,54 @@
       "notes": "",
       "judged_by": "ronakkumar8416",
       "tested_at": "2026-07-05T07:08:23.296097"
+    },
+    {
+      "id": 150,
+      "username": "<@1495128184146886727>",
+      "tester_name": "TOUSIF666",
+      "gamemode": "axe",
+      "tested_tier": "HT5",
+      "rank_before": "Unranked",
+      "result": "passed",
+      "notes": "",
+      "judged_by": "tosu_tofu",
+      "tested_at": "2026-07-05T10:49:04.437884"
+    },
+    {
+      "id": 151,
+      "username": "<@1495128184146886727>",
+      "tester_name": "TOUSIF666",
+      "gamemode": "SWORD",
+      "tested_tier": "HT5",
+      "rank_before": "Unranked",
+      "result": "passed",
+      "notes": "",
+      "judged_by": "tosu_tofu",
+      "tested_at": "2026-07-05T10:49:21.225711"
+    },
+    {
+      "id": 152,
+      "username": "<@1495128184146886727>",
+      "tester_name": "TOUSIF666",
+      "gamemode": "nethop",
+      "tested_tier": "HT5",
+      "rank_before": "Unranked",
+      "result": "passed",
+      "notes": "",
+      "judged_by": "tosu_tofu",
+      "tested_at": "2026-07-05T10:57:10.319080"
+    },
+    {
+      "id": 153,
+      "username": "<@1222973313651966075>",
+      "tester_name": "ZENIXX_GG",
+      "gamemode": "AXE",
+      "tested_tier": "HT3",
+      "rank_before": "LT4",
+      "result": "passed",
+      "notes": "",
+      "judged_by": "outbreak_8413",
+      "tested_at": "2026-07-05T10:57:54.465691"
     }
   ],
   "profiles": {
@@ -2528,12 +2593,11 @@
     },
     "1403981477305126942": {
       "discord_id": "1403981477305126942",
-      "discord_name": "zoro66464",
+      "discord_name": "itz.zoro0",
       "minecraft_username": "ZORO_XM",
       "region": "AS",
       "account_type": "Java",
-      "verified_at": "2026-07-03T07:31:44.026771",
-      "skin_url": "/skins/1403981477305126942.webp"
+      "verified_at": "2026-07-05T10:54:08.363131"
     },
     "1389972782020034601": {
       "discord_id": "1389972782020034601",
@@ -2559,7 +2623,7 @@
       "minecraft_username": "T9x1nn",
       "region": "AS",
       "account_type": "Java",
-      "verified_at": "2026-07-03T12:12:30.619589"
+      "verified_at": "2026-07-05T14:55:14.960151"
     },
     "999158007843782788": {
       "discord_id": "999158007843782788",
@@ -2617,6 +2681,22 @@
       "region": "AS",
       "account_type": "Java",
       "verified_at": "2026-07-04T05:09:11.749635"
+    },
+    "1355193279636832356": {
+      "discord_id": "1355193279636832356",
+      "discord_name": "secretly_jamo_61468",
+      "minecraft_username": "TheKilaaa",
+      "region": "AS",
+      "account_type": "Bedrock",
+      "verified_at": "2026-07-05T09:26:50.186049"
+    },
+    "1495128184146886727": {
+      "discord_id": "1495128184146886727",
+      "discord_name": "zimplayzyt",
+      "minecraft_username": "ZimPlayzYt",
+      "region": "AS",
+      "account_type": "Java",
+      "verified_at": "2026-07-05T14:50:28.449065"
     }
   },
   "waitlist": {
@@ -2634,13 +2714,17 @@
       "1464309694909911101",
       "1512840960122294308",
       "1461637071646232760",
-      "1306901054494871612"
+      "1306901054494871612",
+      "1403981477305126942",
+      "1360180869154996234"
     ],
     "NethOP": [
       "1494236355063054376",
       "1461637071646232760",
       "1306901054494871612",
-      "1521934242920136783"
+      "1521934242920136783",
+      "1403981477305126942",
+      "1464309694909911101"
     ],
     "Mace": [
       "1512840960122294308",
@@ -2648,19 +2732,23 @@
       "1126590316703649912",
       "1296044286097227798",
       "809795886229880882",
-      "1464309694909911101"
+      "1464309694909911101",
+      "1355193279636832356",
+      "1360180869154996234"
     ],
     "Axe": [
       "1494236355063054376",
       "1461637071646232760",
       "1306901054494871612",
-      "809795886229880882"
+      "809795886229880882",
+      "1403981477305126942"
     ],
     "Pot": [
       "1494236355063054376",
       "1461637071646232760",
       "1306901054494871612",
-      "809795886229880882"
+      "809795886229880882",
+      "1464309694909911101"
     ],
     "UHC": [
       "1461637071646232760",
@@ -2775,7 +2863,8 @@
     "1403981477305126942": "ZORO",
     "1521161616140533820": "AyushX6955",
     "1479860922095763667": "\u30d9\u30eb\u30ab\u30a4",
-    "1512840960122294308": "Vortx"
+    "1512840960122294308": "Vortx",
+    "1451607528084607169": "\u2605Criminals\u51f8\u0fd0"
   },
   "gamemode_roles": {
     "Sword": "1521360610195931277",
