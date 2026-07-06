@@ -11,9 +11,9 @@
         "updated_by": "im_shaddy_777"
       },
       "crystal": {
-        "tier": "HT5",
-        "updated_at": "2026-06-13T04:33:48.838002",
-        "updated_by": "im_shaddy_777"
+        "tier": "LT4",
+        "updated_at": "2026-07-06T09:23:36.726280",
+        "updated_by": "outbreak_8413"
       },
       "axe": {
         "tier": "HT3",
@@ -31,9 +31,9 @@
         "updated_by": "im_shaddy_777"
       },
       "pot": {
-        "tier": "LT4",
-        "updated_at": "2026-06-26T19:02:31.629802",
-        "updated_by": "im_shaddy_777"
+        "tier": "HT4",
+        "updated_at": "2026-07-06T09:37:21.474283",
+        "updated_by": "outbreak_8413"
       },
       "mace": {
         "tier": "LT4",
@@ -72,6 +72,11 @@
         "tier": "HT4",
         "updated_at": "2026-06-16T07:45:12.759061",
         "updated_by": "chad__007"
+      },
+      "nethop": {
+        "tier": "HT4",
+        "updated_at": "2026-07-06T13:49:10.798516",
+        "updated_by": "outbreak_8413"
       }
     },
     "<@1384922268349763664>": {
@@ -258,6 +263,16 @@
         "tier": "HT5",
         "updated_at": "2026-06-28T06:06:08.028212",
         "updated_by": "outbreak_8413"
+      },
+      "crystal": {
+        "tier": "HT4",
+        "updated_at": "2026-07-06T08:55:00.233011",
+        "updated_by": "outbreak_8413"
+      },
+      "sword": {
+        "tier": "HT5",
+        "updated_at": "2026-07-06T08:55:41.470710",
+        "updated_by": "outbreak_8413"
       }
     },
     "<@1454784089516281890>": {
@@ -333,9 +348,9 @@
     },
     "<@1403981477305126942>": {
       "crystal": {
-        "tier": "HT5",
-        "updated_at": "2026-07-03T10:02:50.067700",
-        "updated_by": "im_shaddy_777"
+        "tier": "LT4",
+        "updated_at": "2026-07-06T09:08:10.096422",
+        "updated_by": "outbreak_8413"
       },
       "mace": {
         "tier": "HT5",
@@ -398,6 +413,13 @@
         "tier": "HT5",
         "updated_at": "2026-07-05T10:57:10.319080",
         "updated_by": "tosu_tofu"
+      }
+    },
+    "<@910803897751330826>": {
+      "sword": {
+        "tier": "LT4",
+        "updated_at": "2026-07-06T13:56:45.986531",
+        "updated_by": "outbreak_8413"
       }
     }
   },
@@ -2237,6 +2259,90 @@
       "notes": "",
       "judged_by": "outbreak_8413",
       "tested_at": "2026-07-05T10:57:54.465691"
+    },
+    {
+      "id": 154,
+      "username": "<@1428761095744524339>",
+      "tester_name": "ZENIXX_GG",
+      "gamemode": "CRYSTAL",
+      "tested_tier": "HT4",
+      "rank_before": "Unranked",
+      "result": "passed",
+      "notes": "",
+      "judged_by": "outbreak_8413",
+      "tested_at": "2026-07-06T08:55:00.233011"
+    },
+    {
+      "id": 155,
+      "username": "<@1428761095744524339>",
+      "tester_name": "ZENIXX_GG",
+      "gamemode": "SWORD",
+      "tested_tier": "HT5",
+      "rank_before": "Unranked",
+      "result": "passed",
+      "notes": "",
+      "judged_by": "outbreak_8413",
+      "tested_at": "2026-07-06T08:55:41.470710"
+    },
+    {
+      "id": 156,
+      "username": "<@1403981477305126942>",
+      "tester_name": "ZENIXX_GG",
+      "gamemode": "CRYSTAL",
+      "tested_tier": "LT4",
+      "rank_before": "HT5",
+      "result": "passed",
+      "notes": "",
+      "judged_by": "outbreak_8413",
+      "tested_at": "2026-07-06T09:08:10.096422"
+    },
+    {
+      "id": 157,
+      "username": "<@1222973313651966075>",
+      "tester_name": "ZENIXX_GG",
+      "gamemode": "CRYSTAL",
+      "tested_tier": "LT4",
+      "rank_before": "HT5",
+      "result": "passed",
+      "notes": "",
+      "judged_by": "outbreak_8413",
+      "tested_at": "2026-07-06T09:23:36.726280"
+    },
+    {
+      "id": 158,
+      "username": "<@1222973313651966075>",
+      "tester_name": "ZENIXX_GG",
+      "gamemode": "POT",
+      "tested_tier": "HT4",
+      "rank_before": "LT4",
+      "result": "passed",
+      "notes": "",
+      "judged_by": "outbreak_8413",
+      "tested_at": "2026-07-06T09:37:21.474283"
+    },
+    {
+      "id": 159,
+      "username": "<@1494236355063054376>",
+      "tester_name": "ZENIXX_GG",
+      "gamemode": "NETHOP",
+      "tested_tier": "HT4",
+      "rank_before": "Unranked",
+      "result": "passed",
+      "notes": "",
+      "judged_by": "outbreak_8413",
+      "tested_at": "2026-07-06T13:49:10.798516"
+    },
+    {
+      "id": 160,
+      "username": "<@910803897751330826>",
+      "tester_name": "ZENIXX_GG",
+      "gamemode": "SWORD",
+      "tested_tier": "LT4",
+      "rank_before": "Unranked",
+      "result": "passed",
+      "notes": "",
+      "judged_by": "outbreak_8413",
+      "tested_at": "2026-07-06T13:56:45.986531"
     }
   ],
   "profiles": {
@@ -2696,6 +2802,14 @@
       "region": "AS",
       "account_type": "Java",
       "verified_at": "2026-07-05T14:50:28.449065"
+    },
+    "1121075209550712862": {
+      "discord_id": "1121075209550712862",
+      "discord_name": "haz3mas",
+      "minecraft_username": "Wifiess_",
+      "region": "EU",
+      "account_type": "Java",
+      "verified_at": "2026-07-06T12:19:32.709356"
     }
   },
   "waitlist": {
@@ -2703,7 +2817,8 @@
       "1494236355063054376",
       "1461637071646232760",
       "1306901054494871612",
-      "809795886229880882"
+      "809795886229880882",
+      "865454514277974017"
     ],
     "Sword": [
       "1521161616140533820",
@@ -2715,7 +2830,8 @@
       "1461637071646232760",
       "1306901054494871612",
       "1403981477305126942",
-      "1360180869154996234"
+      "1360180869154996234",
+      "1121075209550712862"
     ],
     "NethOP": [
       "1494236355063054376",
@@ -2723,7 +2839,8 @@
       "1306901054494871612",
       "1521934242920136783",
       "1403981477305126942",
-      "1464309694909911101"
+      "1464309694909911101",
+      "865454514277974017"
     ],
     "Mace": [
       "1512840960122294308",
@@ -2741,7 +2858,8 @@
       "1461637071646232760",
       "1306901054494871612",
       "809795886229880882",
-      "1403981477305126942"
+      "1403981477305126942",
+      "1434611390617751744"
     ],
     "Pot": [
       "1494236355063054376",
