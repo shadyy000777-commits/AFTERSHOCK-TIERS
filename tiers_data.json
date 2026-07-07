@@ -420,6 +420,18 @@
         "tier": "LT4",
         "updated_at": "2026-07-06T13:56:45.986531",
         "updated_by": "outbreak_8413"
+      },
+      "mace": {
+        "tier": "HT5",
+        "updated_at": "2026-07-06T14:45:36.873552",
+        "updated_by": "hi.diddler"
+      }
+    },
+    "<@1121075209550712862>": {
+      "sword": {
+        "tier": "HT4",
+        "updated_at": "2026-07-06T14:45:52.258870",
+        "updated_by": "outbreak_8413"
       }
     }
   },
@@ -2343,6 +2355,30 @@
       "notes": "",
       "judged_by": "outbreak_8413",
       "tested_at": "2026-07-06T13:56:45.986531"
+    },
+    {
+      "id": 161,
+      "username": "<@910803897751330826>",
+      "tester_name": "Unsteadyy_",
+      "gamemode": "Mace",
+      "tested_tier": "HT5",
+      "rank_before": "Unranked",
+      "result": "passed",
+      "notes": "",
+      "judged_by": "hi.diddler",
+      "tested_at": "2026-07-06T14:45:36.873552"
+    },
+    {
+      "id": 162,
+      "username": "<@1121075209550712862>",
+      "tester_name": "ZENIXX_GG",
+      "gamemode": "SWORD",
+      "tested_tier": "HT4",
+      "rank_before": "Unranked",
+      "result": "passed",
+      "notes": "USED PING EQUALIZER",
+      "judged_by": "outbreak_8413",
+      "tested_at": "2026-07-06T14:45:52.258870"
     }
   ],
   "profiles": {
@@ -2983,7 +3019,8 @@
     "1479860922095763667": "\u30d9\u30eb\u30ab\u30a4",
     "1512840960122294308": "Vortx",
     "1451607528084607169": "\u2605Criminals\u51f8\u0fd0",
-    "1495128184146886727": "ZimPlayzYt"
+    "1495128184146886727": "ZimPlayzYt",
+    "910803897751330826": "HatedGhost"
   },
   "gamemode_roles": {
     "Sword": "1521360610195931277",
