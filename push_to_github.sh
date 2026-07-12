@@ -11,7 +11,7 @@ COMMIT_MSG="${1:-Update from Replit}"
 
 # ── 1. Push full bot to AFTERSHOCK-TIERS ────────────────────────────────────
 echo "▶ Pushing to AFTERSHOCK-TIERS..."
-git remote set-url origin https://github.com/shadyy000777-commits/AFTERSHOCK-TIERS
+git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/shadyy000777-commits/AFTERSHOCK-TIERS
 if ! git diff --quiet || ! git diff --cached --quiet || git ls-files --others --exclude-standard | grep -q .; then
     git add -A
     git commit -m "$COMMIT_MSG"
