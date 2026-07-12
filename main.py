@@ -997,8 +997,24 @@ async def submittest(
         return
 
     data = load_data()
-    key = username.lower()
     gm_key = gamemode.lower()
+
+    # Resolve the correct player key — may be stored as plain username or <@discord_id>
+    username_lower = username.lower()
+    if username_lower in data.get("players", {}):
+        key = username_lower
+    else:
+        # Check profiles for a matching Minecraft username → find their <@discord_id> key
+        key = username_lower  # fallback
+        for v in data.get("profiles", {}).values():
+            if v.get("minecraft_username", "").lower() == username_lower:
+                discord_id = v.get("discord_id")
+                if discord_id:
+                    mention_key = f"<@{discord_id}>"
+                    if mention_key in data.get("players", {}):
+                        key = mention_key
+                break
+
     rank_before = data["players"].get(key, {}).get(gm_key, {}).get("tier", "Unranked")
 
     test = {
