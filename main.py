@@ -157,7 +157,7 @@ STAFF_COMMANDS = [
     "nexttester", "setwaitlistcategory", "queue", "kickfromqueue", "leaderboard", "profile",
     "pointsto", "setimage", "point", "region",
     "gettier", "history", "image", "tierlist", "waitlist", "website",
-    "removeplayerrole",
+    "removeplayerrole", "verify",
 ]
 
 
@@ -1216,6 +1216,88 @@ async def profile_cmd(interaction: discord.Interaction, member: discord.Member):
     except Exception as e:
         print(f"Profile card error: {e}")
         await interaction.followup.send("❌ Failed to generate the profile card.", ephemeral=True)
+
+
+@tree.command(name="verify", description="Manually verify a player's profile (staff only)")
+@app_commands.describe(
+    member="The Discord member to verify",
+    minecraft_username="Their Minecraft username",
+    region="Their region",
+    account_type="Java or Bedrock edition",
+)
+@app_commands.choices(
+    region=[
+        app_commands.Choice(name="🇺🇸 NA — North America", value="NA"),
+        app_commands.Choice(name="🇪🇺 EU — Europe",        value="EU"),
+        app_commands.Choice(name="🇮🇳 AS — Asia",          value="AS"),
+        app_commands.Choice(name="🇧🇷 SA — South America", value="SA"),
+        app_commands.Choice(name="🇦🇺 OCE — Oceania",      value="OCE"),
+    ],
+    account_type=[
+        app_commands.Choice(name="☕ Java",    value="Java"),
+        app_commands.Choice(name="🪨 Bedrock", value="Bedrock"),
+    ],
+)
+@require_command_role("verify")
+async def verify_cmd(
+    interaction: discord.Interaction,
+    member: discord.Member,
+    minecraft_username: str,
+    region: str,
+    account_type: str,
+):
+    await interaction.response.defer(ephemeral=True)
+    data = load_data()
+    user_key = str(member.id)
+    mention_key = f"<@{member.id}>"
+    mc_name = minecraft_username.strip()
+
+    # Build / update the profile entry
+    existing_profile = data.setdefault("profiles", {}).get(user_key, {})
+    data["profiles"][user_key] = {
+        "discord_id":         user_key,
+        "discord_name":       str(member),
+        "minecraft_username": mc_name,
+        "region":             region,
+        "account_type":       account_type,
+        "verified_at":        datetime.datetime.utcnow().isoformat(),
+        # Preserve skin_url if already set
+        "skin_url":           existing_profile.get("skin_url", ""),
+    }
+
+    # Keep discord_names map up to date
+    data.setdefault("discord_names", {})[user_key] = mc_name
+
+    # Merge any plain-username player entry into the <@discord_id> key
+    plain_key = mc_name.lower()
+    players = data.setdefault("players", {})
+    if plain_key in players and mention_key not in players:
+        players[mention_key] = players.pop(plain_key)
+    elif plain_key in players and mention_key in players:
+        # Merge — prefer the <@id> entry, copy any gamemodes missing from it
+        for gm, val in players[plain_key].items():
+            if gm not in players[mention_key]:
+                players[mention_key][gm] = val
+        del players[plain_key]
+
+    save_data(data)
+
+    region_flags = {"NA": "🇺🇸", "EU": "🇪🇺", "AS": "🇮🇳", "SA": "🇧🇷", "OCE": "🇦🇺"}
+    flag = region_flags.get(region, "🌍")
+    account_emoji = "☕" if account_type == "Java" else "🪨"
+
+    embed = discord.Embed(
+        title="✅ Profile Verified",
+        color=discord.Color.green(),
+    )
+    embed.add_field(name="Discord",   value=member.mention,                   inline=True)
+    embed.add_field(name="Username",  value=f"`{mc_name}`",                   inline=True)
+    embed.add_field(name="Region",    value=f"{flag} `{region}`",             inline=True)
+    embed.add_field(name="Account",   value=f"{account_emoji} `{account_type}`", inline=True)
+    embed.set_footer(text=f"Verified by {interaction.user}")
+    embed.set_thumbnail(url=member.display_avatar.url)
+
+    await interaction.followup.send(embed=embed, ephemeral=False)
 
 
 @tree.command(name="image", description="Upload a profile image shown on the website leaderboard")
