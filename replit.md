@@ -30,3 +30,6 @@ This single process logs the Discord bot in AND serves the website on port 5000 
 Note: `railway_server.py`, `Procfile`, and `railway.json` are leftovers from a previous Railway deployment and are not used on Replit.
 
 ## User preferences
+- After committing changes to Discord bot code/commands (`main.py`, `config.py`, `requirements.txt`), always run `bash push_to_github.sh "<commit message>"` so those changes are pushed to the `Discord-bot` GitHub repo (and `AFTERSHOCK-TIERS`).
+- After committing changes to website/player data (`index.html`, `tiers_data.json`, `static/`), always run the same script so those changes are pushed to the `INDEX` GitHub repo (connected to Netlify).
+- Do this automatically after relevant changes — don't wait to be asked to push each time.
