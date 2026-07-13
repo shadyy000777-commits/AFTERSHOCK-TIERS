@@ -363,6 +363,7 @@ tree = bot.tree
 DEFAULT_GAMEMODES = ["Sword", "Axe", "NethOP", "UHC", "SMP", "Pot", "Mace", "Crystal"]
 
 active_queues: dict[int, "QueueView"] = {}
+session_ended_messages: dict[int, int] = {}  # channel_id -> message_id of "No Testers Online" embed
 
 def build_waitlist_embed(gamemode: str, queue: list, profiles: dict) -> discord.Embed:
     embed = discord.Embed(
@@ -2007,7 +2008,8 @@ class QueueView(discord.ui.View):
             if icon_url:
                 ended_embed.set_thumbnail(url=icon_url)
 
-            await interaction.channel.send(embed=ended_embed)
+            sent = await interaction.channel.send(embed=ended_embed)
+            session_ended_messages[self.channel_id] = sent.id
         except Exception as e:
             print(f"[session ended embed] {e}")
 
@@ -2052,6 +2054,14 @@ async def queue_cmd(interaction: discord.Interaction, gamemode: str):
             ephemeral=True,
         )
         return
+    # Delete the "No Testers Online" message if one exists in this channel
+    ended_msg_id = session_ended_messages.pop(channel_id, None)
+    if ended_msg_id:
+        try:
+            ended_msg = await interaction.channel.fetch_message(ended_msg_id)
+            await ended_msg.delete()
+        except Exception:
+            pass
     message_ref: list = []
     view = QueueView(gamemode, interaction.user, message_ref, channel_id)
     embed = build_queue_embed(gamemode, interaction.user, [])
@@ -2082,6 +2092,14 @@ async def testing_cmd(interaction: discord.Interaction, region: app_commands.Cho
             ephemeral=True,
         )
         return
+    # Delete the "No Testers Online" message if one exists in this channel
+    ended_msg_id = session_ended_messages.pop(channel_id, None)
+    if ended_msg_id:
+        try:
+            ended_msg = await interaction.channel.fetch_message(ended_msg_id)
+            await ended_msg.delete()
+        except Exception:
+            pass
     message_ref: list = []
     view = QueueView(gamemode, interaction.user, message_ref, channel_id, region=region.value)
     embed = build_queue_embed(gamemode, interaction.user, [], region=region.value)
