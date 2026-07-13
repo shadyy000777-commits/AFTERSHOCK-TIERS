@@ -157,7 +157,7 @@ STAFF_COMMANDS = [
     "nexttester", "setwaitlistcategory", "queue", "kickfromqueue", "leaderboard", "profile",
     "pointsto", "setimage", "point", "region",
     "gettier", "history", "image", "tierlist", "waitlist", "website",
-    "removeplayerrole", "verify",
+    "removeplayerrole", "verify", "testing",
 ]
 
 
@@ -1894,13 +1894,25 @@ async def setwaitlistcategory(interaction: discord.Interaction, category: discor
     )
 
 
-def build_queue_embed(gamemode: str, tester: discord.Member, members: list, closed: bool = False) -> discord.Embed:
+REGION_FLAGS = {"NA": "🇺🇸", "EU": "🇪🇺", "AS": "🇮🇳", "SA": "🇧🇷", "OCE": "🇦🇺"}
+
+
+def build_queue_embed(
+    gamemode: str,
+    tester: discord.Member,
+    members: list,
+    closed: bool = False,
+    region: str = "",
+) -> discord.Embed:
     color = discord.Color.red() if closed else discord.Color.green()
     status = "🔴 CLOSED" if closed else "🟢 OPEN"
     title = f"<:emoji_39:1522696411723075654> {gamemode} Queue — {status}"
     embed = discord.Embed(title=title, color=color)
     embed.add_field(name="Tester", value=str(tester), inline=True)
     embed.add_field(name="Gamemode", value=gamemode, inline=True)
+    if region:
+        flag = REGION_FLAGS.get(region.upper(), "🌍")
+        embed.add_field(name="Region", value=f"{flag} {region.upper()}", inline=True)
     if members:
         lines = [f"`{i}.` <@{m}>" for i, m in enumerate(members, 1)]
         embed.add_field(name=f"Players in Queue ({len(members)})", value="\n".join(lines), inline=False)
@@ -1913,24 +1925,44 @@ def build_queue_embed(gamemode: str, tester: discord.Member, members: list, clos
     return embed
 
 
+def _is_tester_or_admin(interaction: discord.Interaction, tester_id: int, data: dict) -> bool:
+    """Return True if the interacting user is the queue's tester, an admin, or holds the 'testing' command role."""
+    user = interaction.user
+    if user.id == tester_id:
+        return True
+    if not interaction.guild:
+        return False
+    if user.guild_permissions.administrator:
+        return True
+    if user.id == interaction.guild.owner_id:
+        return True
+    role_id = data.get("command_roles", {}).get("testing")
+    if role_id:
+        role = interaction.guild.get_role(int(role_id))
+        if role and role in user.roles:
+            return True
+    return False
+
+
 class QueueView(discord.ui.View):
-    def __init__(self, gamemode: str, tester: discord.Member, message_ref: list, channel_id: int):
+    def __init__(self, gamemode: str, tester: discord.Member, message_ref: list, channel_id: int, region: str = ""):
         super().__init__(timeout=None)
         self.gamemode = gamemode
         self.tester = tester
+        self.region = region
         self.members: list[int] = []
         self.message_ref = message_ref
         self.channel_id = channel_id
 
     async def _update(self, interaction: discord.Interaction):
-        embed = build_queue_embed(self.gamemode, self.tester, self.members)
+        embed = build_queue_embed(self.gamemode, self.tester, self.members, region=self.region)
         await interaction.response.edit_message(embed=embed, view=self)
 
     async def _update_silent(self):
         msg = self.message_ref[0] if self.message_ref else None
         if msg:
             try:
-                embed = build_queue_embed(self.gamemode, self.tester, self.members)
+                embed = build_queue_embed(self.gamemode, self.tester, self.members, region=self.region)
                 await msg.edit(embed=embed, view=self)
             except Exception:
                 pass
@@ -1939,7 +1971,7 @@ class QueueView(discord.ui.View):
         active_queues.pop(self.channel_id, None)
         for item in self.children:
             item.disabled = True
-        embed = build_queue_embed(self.gamemode, self.tester, self.members, closed=True)
+        embed = build_queue_embed(self.gamemode, self.tester, self.members, closed=True, region=self.region)
         await interaction.response.edit_message(embed=embed, view=self)
         self.stop()
 
@@ -1963,8 +1995,12 @@ class QueueView(discord.ui.View):
 
     @discord.ui.button(label="Close Queue", emoji="🔒", style=discord.ButtonStyle.secondary, custom_id="queue_close")
     async def close_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        if interaction.user.id != self.tester.id:
-            await interaction.response.send_message("❌ Only the tester who opened this queue can close it.", ephemeral=True)
+        data = load_data()
+        if not _is_tester_or_admin(interaction, self.tester.id, data):
+            await interaction.response.send_message(
+                "❌ Only the tester who opened this queue, or a staff member, can close it.",
+                ephemeral=True,
+            )
             return
         await self._close(interaction)
 
@@ -1983,6 +2019,36 @@ async def queue_cmd(interaction: discord.Interaction, gamemode: str):
     message_ref: list = []
     view = QueueView(gamemode, interaction.user, message_ref, channel_id)
     embed = build_queue_embed(gamemode, interaction.user, [])
+    await interaction.response.send_message(embed=embed, view=view)
+    msg = await interaction.original_response()
+    message_ref.append(msg)
+    active_queues[channel_id] = view
+
+
+@tree.command(name="testing", description="Open a testing queue for a region and gamemode (Tester only)")
+@app_commands.describe(
+    region="Region for this testing session",
+    gamemode="Gamemode you are testing",
+)
+@app_commands.choices(region=[
+    app_commands.Choice(name="NA 🇺🇸", value="NA"),
+    app_commands.Choice(name="EU 🇪🇺", value="EU"),
+    app_commands.Choice(name="AS 🇮🇳", value="AS"),
+    app_commands.Choice(name="SA 🇧🇷", value="SA"),
+    app_commands.Choice(name="OCE 🇦🇺", value="OCE"),
+])
+@require_command_role("testing")
+async def testing_cmd(interaction: discord.Interaction, region: app_commands.Choice[str], gamemode: str):
+    channel_id = interaction.channel_id
+    if channel_id in active_queues:
+        await interaction.response.send_message(
+            "❌ There's already an active queue in this channel. Close it first.",
+            ephemeral=True,
+        )
+        return
+    message_ref: list = []
+    view = QueueView(gamemode, interaction.user, message_ref, channel_id, region=region.value)
+    embed = build_queue_embed(gamemode, interaction.user, [], region=region.value)
     await interaction.response.send_message(embed=embed, view=view)
     msg = await interaction.original_response()
     message_ref.append(msg)
