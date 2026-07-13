@@ -1119,9 +1119,9 @@ async def submittest(
             print(f"[submittest] Role removal error: {re_err}")
 
     color_map = {
-        "passed": discord.Color.yellow(),
-        "failed": discord.Color.yellow(),
-        "voided": discord.Color.yellow(),
+        "passed": discord.Color.red(),
+        "failed": discord.Color.red(),
+        "voided": discord.Color.red(),
     }
     emoji_map = {"passed": "✅", "failed": "❌", "voided": "⬜"}
     rank_earned = tested_tier if result.value == "passed" else "—"
@@ -1130,15 +1130,15 @@ async def submittest(
         title=f"{username} TEST RESULTS 🏆",
         color=color_map[result.value],
     )
-    embed.add_field(name="Player Name", value=username, inline=False)
-    embed.add_field(name="Tester Name", value=tester_name, inline=False)
-    embed.add_field(name="Game Mode", value=gamemode, inline=False)
-    embed.add_field(name="Rank Before", value=rank_before, inline=False)
-    embed.add_field(name="Rank Earned", value=rank_earned, inline=False)
+    embed.add_field(name="Player Name", value=f"{username}\n\u200b", inline=False)
+    embed.add_field(name="Tester Name", value=f"{tester_name}\n\u200b", inline=False)
+    embed.add_field(name="Game Mode", value=f"{gamemode}\n\u200b", inline=False)
+    embed.add_field(name="Rank Before", value=f"{rank_before}\n\u200b", inline=False)
+    embed.add_field(name="Rank Earned", value=f"{rank_earned}\n\u200b", inline=False)
     if notes:
-        embed.add_field(name="Notes", value=notes, inline=False)
+        embed.add_field(name="Notes", value=f"{notes}\n\u200b", inline=False)
     if role_removed:
-        embed.add_field(name="Role Removed", value=f"🎭 **{role_removed}** removed", inline=False)
+        embed.add_field(name="Role Removed", value=f"🎭 **{role_removed}** removed\n\u200b", inline=False)
     embed.set_thumbnail(url=f"https://mc-heads.net/avatar/{username}/100")
 
     view = RemoveRoleView(
