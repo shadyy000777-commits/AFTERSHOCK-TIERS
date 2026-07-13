@@ -1884,7 +1884,7 @@ def build_queue_embed(gamemode: str, tester: discord.Member, members: list, clos
     else:
         embed.add_field(name="Players in Queue (0)", value="*Nobody yet — click Join!*", inline=False)
     if not closed:
-        embed.set_footer(text="Queue closes in 3 minutes • Click Join to enter, Leave to exit")
+        embed.set_footer(text="Click Join to enter, Leave to exit • Tester can close the queue anytime")
     else:
         embed.set_footer(text="This queue has closed.")
     return embed
@@ -1892,7 +1892,7 @@ def build_queue_embed(gamemode: str, tester: discord.Member, members: list, clos
 
 class QueueView(discord.ui.View):
     def __init__(self, gamemode: str, tester: discord.Member, message_ref: list, channel_id: int):
-        super().__init__(timeout=QUEUE_TIMEOUT_SECONDS)
+        super().__init__(timeout=None)
         self.gamemode = gamemode
         self.tester = tester
         self.members: list[int] = []
@@ -1912,6 +1912,14 @@ class QueueView(discord.ui.View):
             except Exception:
                 pass
 
+    async def _close(self, interaction: discord.Interaction):
+        active_queues.pop(self.channel_id, None)
+        for item in self.children:
+            item.disabled = True
+        embed = build_queue_embed(self.gamemode, self.tester, self.members, closed=True)
+        await interaction.response.edit_message(embed=embed, view=self)
+        self.stop()
+
     @discord.ui.button(label="Join", emoji="✅", style=discord.ButtonStyle.success, custom_id="queue_join")
     async def join_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         uid = interaction.user.id
@@ -1930,20 +1938,15 @@ class QueueView(discord.ui.View):
         self.members.remove(uid)
         await self._update(interaction)
 
-    async def on_timeout(self):
-        active_queues.pop(self.channel_id, None)
-        for item in self.children:
-            item.disabled = True
-        embed = build_queue_embed(self.gamemode, self.tester, self.members, closed=True)
-        msg = self.message_ref[0] if self.message_ref else None
-        if msg:
-            try:
-                await msg.edit(embed=embed, view=self)
-            except Exception:
-                pass
+    @discord.ui.button(label="Close Queue", emoji="🔒", style=discord.ButtonStyle.secondary, custom_id="queue_close")
+    async def close_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if interaction.user.id != self.tester.id:
+            await interaction.response.send_message("❌ Only the tester who opened this queue can close it.", ephemeral=True)
+            return
+        await self._close(interaction)
 
 
-@tree.command(name="queue", description="Open a live queue for a gamemode (3 minutes)")
+@tree.command(name="queue", description="Open a live queue for a gamemode (tester closes manually)")
 @app_commands.describe(gamemode="The gamemode you are testing")
 @require_command_role("queue")
 async def queue_cmd(interaction: discord.Interaction, gamemode: str):
