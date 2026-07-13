@@ -1975,6 +1975,42 @@ class QueueView(discord.ui.View):
         await interaction.response.edit_message(embed=embed, view=self)
         self.stop()
 
+        # Post the "No Testers Online" summary in the same channel
+        try:
+            guild = interaction.guild
+            server_name = guild.name if guild else "Aftershock Tiers"
+            icon_url = guild.icon.url if (guild and guild.icon) else None
+
+            now = discord.utils.utcnow()
+            # Format: Monday, 13 July 2026 11:02  (Discord timestamp falls back to this)
+            ts = f"<t:{int(now.timestamp())}:F>"
+
+            region_part = f" | Region: {self.region}" if self.region else ""
+            ended_embed = discord.Embed(
+                title=server_name,
+                color=discord.Color.red(),
+            )
+            ended_embed.add_field(
+                name="No Testers Online",
+                value=(
+                    "No testers for your region are available at this time.\n"
+                    "You can be pinged when a tester is available.\n"
+                    "Check back later!"
+                ),
+                inline=False,
+            )
+            ended_embed.add_field(
+                name="Last testing session",
+                value=f"{ts}\n\nGamemode: {self.gamemode}{region_part}",
+                inline=False,
+            )
+            if icon_url:
+                ended_embed.set_thumbnail(url=icon_url)
+
+            await interaction.channel.send(embed=ended_embed)
+        except Exception as e:
+            print(f"[session ended embed] {e}")
+
     @discord.ui.button(label="Join", emoji="✅", style=discord.ButtonStyle.success, custom_id="queue_join")
     async def join_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         uid = interaction.user.id
