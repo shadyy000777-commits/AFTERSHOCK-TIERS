@@ -592,30 +592,12 @@ class GamemodeButton(discord.ui.Button):
                 return
 
             mc_name = profile["minecraft_username"]
-            region = profile.get("region", "?")
-            account_type = profile.get("account_type", "?")
-
-            # Prevent duplicate temp channels for the same player + gamemode
-            temp_channels = data.get("temp_channels", {})
-            existing_ch_id = temp_channels.get(user_key, {}).get(self.gamemode)
-            if existing_ch_id and interaction.guild:
-                existing_ch = interaction.guild.get_channel(int(existing_ch_id))
-                if existing_ch:
-                    await interaction.response.send_message(
-                        f"⏳ You already have an active request for **{self.gamemode}**: {existing_ch.mention}",
-                        ephemeral=True,
-                    )
-                    return
 
             # Add to waitlist data (keeps /nexttester compatible)
             waitlist = data.setdefault("waitlist", {})
             queue = waitlist.setdefault(self.gamemode, [])
             if user_key not in queue:
                 queue.append(user_key)
-
-            # Unique ticket number for channel name (no player name exposed)
-            ticket_num = data.get("ticket_counter", 0) + 1
-            data["ticket_counter"] = ticket_num
 
             # Auto-assign gamemode role (case-insensitive)
             gm_roles = data.get("gamemode_roles", {})
@@ -636,81 +618,12 @@ class GamemodeButton(discord.ui.Button):
                     except Exception as re:
                         print(f"[GamemodeButton] Role assign error: {re}")
 
-            # Create private temporary channel in the waitlist category
-            temp_channel = None
-            if interaction.guild:
-                category = None
-                cat_id = data.get("waitlist_category_id")
-                if cat_id:
-                    category = interaction.guild.get_channel(int(cat_id))
-                    if not isinstance(category, discord.CategoryChannel):
-                        category = None
+            save_data(data)
 
-                member = interaction.guild.get_member(interaction.user.id)
-                overwrites = {
-                    interaction.guild.default_role: discord.PermissionOverwrite(view_channel=False),
-                    interaction.guild.me: discord.PermissionOverwrite(
-                        view_channel=True, send_messages=True,
-                        manage_channels=True, manage_messages=True,
-                    ),
-                }
-                if member:
-                    overwrites[member] = discord.PermissionOverwrite(
-                        view_channel=True, send_messages=True, read_message_history=True,
-                    )
-                # Give tester role access to the channel
-                if role_id:
-                    tester_role = interaction.guild.get_role(int(role_id))
-                    if tester_role:
-                        overwrites[tester_role] = discord.PermissionOverwrite(
-                            view_channel=True, send_messages=True, read_message_history=True,
-                        )
-
-                safe_gm = self.gamemode.lower().replace(" ", "-")
-                ch_name = f"{safe_gm}-{ticket_num:04d}"
-
-                try:
-                    temp_channel = await interaction.guild.create_text_channel(
-                        name=ch_name,
-                        overwrites=overwrites,
-                        topic=f"{self.gamemode} tier test request",
-                        category=category,
-                    )
-                    # Track so we can prevent duplicates
-                    temp_channels.setdefault(user_key, {})[self.gamemode] = temp_channel.id
-                    data["temp_channels"] = temp_channels
-                    save_data(data)
-
-                    # Post embed inside the private channel (staff eyes only)
-                    embed = discord.Embed(
-                        title=f"📋 {self.gamemode} — Tier Test Request",
-                        color=discord.Color.purple(),
-                    )
-                    embed.add_field(name="Minecraft Name", value=f"`{mc_name}`", inline=True)
-                    embed.add_field(name="Region",          value=region,          inline=True)
-                    embed.add_field(name="Account Type",    value=account_type,    inline=True)
-                    embed.add_field(name="Discord",         value=f"<@{user_key}>", inline=False)
-                    embed.set_thumbnail(url=f"https://mc-heads.net/avatar/{mc_name}/64")
-                    embed.set_footer(text="Staff: click 🔒 Close Channel when the test session is done.")
-                    await temp_channel.send(
-                        content=f"<@{user_key}> — your **{self.gamemode}** tier test has been requested! A tester will be with you shortly.",
-                        embed=embed,
-                        view=TempChannelView(),
-                    )
-                except discord.Forbidden:
-                    print(f"[GamemodeButton] Missing permission to create channel in category {cat_id}")
-                    save_data(data)
-                except Exception as ch_err:
-                    print(f"[GamemodeButton] Temp channel creation error: {ch_err}")
-                    save_data(data)
-            else:
-                save_data(data)
-
-            role_line    = f"\n🎭 You've been given the **{role_assigned}** role!" if role_assigned else ""
-            channel_line = f"\n📂 Your test channel: {temp_channel.mention}" if temp_channel else ""
+            role_line = f"\n🎭 You've been given the **{role_assigned}** role!" if role_assigned else ""
             await interaction.response.send_message(
-                f"✅ Your **{self.gamemode}** tier test request has been submitted!\n"
-                f"⏰ A tester will reach you shortly.{role_line}{channel_line}",
+                f"✅ **{mc_name}** has been added to the **{self.gamemode}** waitlist!\n"
+                f"⏰ A tester will ping you soon.{role_line}",
                 ephemeral=True,
             )
         except Exception as e:
