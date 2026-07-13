@@ -48,3 +48,35 @@ fi
 # Clean up temp branch
 git checkout main
 git branch -D _index-push 2>/dev/null || true
+
+# ── 3. Push bot code files to Discord-bot repo ──────────────────────────────
+echo ""
+echo "▶ Pushing bot files to Discord-bot..."
+DISCORD_BOT_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/shadyy000777-commits/Discord-bot"
+
+# Fetch current Discord-bot state
+git fetch "$DISCORD_BOT_URL" main 2>/dev/null || git fetch "$DISCORD_BOT_URL" master 2>/dev/null || true
+
+# Create a temporary branch from Discord-bot main (or orphan if repo is empty)
+if git fetch "$DISCORD_BOT_URL" main 2>/dev/null; then
+    git checkout -b _discordbot-push FETCH_HEAD 2>/dev/null
+else
+    git checkout --orphan _discordbot-push
+    git rm -rf . --quiet 2>/dev/null || true
+fi
+
+# Overlay the latest bot files from main
+git checkout main -- main.py config.py requirements.txt
+
+# Commit and push
+if ! git diff --cached --quiet; then
+    git commit -m "$COMMIT_MSG"
+    git push "$DISCORD_BOT_URL" _discordbot-push:main --force
+    echo "✅ Pushed main.py, config.py, requirements.txt to Discord-bot"
+else
+    echo "ℹ️  No bot file changes to push to Discord-bot."
+fi
+
+# Clean up temp branch
+git checkout main
+git branch -D _discordbot-push 2>/dev/null || true
