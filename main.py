@@ -1874,7 +1874,7 @@ async def setwaitlistcategory(interaction: discord.Interaction, category: discor
 def build_queue_embed(gamemode: str, tester: discord.Member, members: list, closed: bool = False) -> discord.Embed:
     color = discord.Color.red() if closed else discord.Color.green()
     status = "🔴 CLOSED" if closed else "🟢 OPEN"
-    title = f"🎮 {gamemode} Queue — {status}"
+    title = f"<:emoji_39:1522696411723075654> {gamemode} Queue — {status}"
     embed = discord.Embed(title=title, color=color)
     embed.add_field(name="Tester", value=str(tester), inline=True)
     embed.add_field(name="Gamemode", value=gamemode, inline=True)
