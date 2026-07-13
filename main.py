@@ -591,20 +591,33 @@ class GamemodeButton(discord.ui.Button):
                 )
                 return
 
+            mc_name = profile["minecraft_username"]
+            region = profile.get("region", "?")
+            account_type = profile.get("account_type", "?")
+
+            # Prevent duplicate temp channels for the same player + gamemode
+            temp_channels = data.get("temp_channels", {})
+            existing_ch_id = temp_channels.get(user_key, {}).get(self.gamemode)
+            if existing_ch_id and interaction.guild:
+                existing_ch = interaction.guild.get_channel(int(existing_ch_id))
+                if existing_ch:
+                    await interaction.response.send_message(
+                        f"⏳ You already have an active request for **{self.gamemode}**: {existing_ch.mention}",
+                        ephemeral=True,
+                    )
+                    return
+
+            # Add to waitlist data (keeps /nexttester compatible)
             waitlist = data.setdefault("waitlist", {})
             queue = waitlist.setdefault(self.gamemode, [])
+            if user_key not in queue:
+                queue.append(user_key)
 
-            if user_key in queue:
-                await interaction.response.send_message(
-                    f"⏳ You're already in the **{self.gamemode}** waitlist!", ephemeral=True
-                )
-                return
+            # Unique ticket number for channel name (no player name exposed)
+            ticket_num = data.get("ticket_counter", 0) + 1
+            data["ticket_counter"] = ticket_num
 
-            queue.append(user_key)
-            save_data(data)
-            mc_name = profile["minecraft_username"]
-
-            # Auto-assign gamemode role if configured (case-insensitive key match)
+            # Auto-assign gamemode role (case-insensitive)
             gm_roles = data.get("gamemode_roles", {})
             gm_key_lower = self.gamemode.lower()
             role_id = next((v for k, v in gm_roles.items() if k.lower() == gm_key_lower), None)
@@ -614,36 +627,92 @@ class GamemodeButton(discord.ui.Button):
                 role = interaction.guild.get_role(int(role_id))
                 if role:
                     try:
-                        member = interaction.guild.get_member(interaction.user.id) or interaction.user
-                        await member.add_roles(role, reason=f"Joined {self.gamemode} waitlist via panel")
-                        role_assigned = role.name
+                        member = interaction.guild.get_member(interaction.user.id)
+                        if member:
+                            await member.add_roles(role, reason=f"Requested {self.gamemode} tier test via panel")
+                            role_assigned = role.name
                     except discord.Forbidden:
                         print(f"[GamemodeButton] Missing permission to assign role '{role.name}'")
                     except Exception as re:
                         print(f"[GamemodeButton] Role assign error: {re}")
 
-            role_line = f"\n🎭 You've been given the **{role_assigned}** role!" if role_assigned else ""
+            # Create private temporary channel in the waitlist category
+            temp_channel = None
+            if interaction.guild:
+                category = None
+                cat_id = data.get("waitlist_category_id")
+                if cat_id:
+                    category = interaction.guild.get_channel(int(cat_id))
+                    if not isinstance(category, discord.CategoryChannel):
+                        category = None
+
+                member = interaction.guild.get_member(interaction.user.id)
+                overwrites = {
+                    interaction.guild.default_role: discord.PermissionOverwrite(view_channel=False),
+                    interaction.guild.me: discord.PermissionOverwrite(
+                        view_channel=True, send_messages=True,
+                        manage_channels=True, manage_messages=True,
+                    ),
+                }
+                if member:
+                    overwrites[member] = discord.PermissionOverwrite(
+                        view_channel=True, send_messages=True, read_message_history=True,
+                    )
+                # Give tester role access to the channel
+                if role_id:
+                    tester_role = interaction.guild.get_role(int(role_id))
+                    if tester_role:
+                        overwrites[tester_role] = discord.PermissionOverwrite(
+                            view_channel=True, send_messages=True, read_message_history=True,
+                        )
+
+                safe_gm = self.gamemode.lower().replace(" ", "-")
+                ch_name = f"{safe_gm}-{ticket_num:04d}"
+
+                try:
+                    temp_channel = await interaction.guild.create_text_channel(
+                        name=ch_name,
+                        overwrites=overwrites,
+                        topic=f"{self.gamemode} tier test request",
+                        category=category,
+                    )
+                    # Track so we can prevent duplicates
+                    temp_channels.setdefault(user_key, {})[self.gamemode] = temp_channel.id
+                    data["temp_channels"] = temp_channels
+                    save_data(data)
+
+                    # Post embed inside the private channel (staff eyes only)
+                    embed = discord.Embed(
+                        title=f"📋 {self.gamemode} — Tier Test Request",
+                        color=discord.Color.purple(),
+                    )
+                    embed.add_field(name="Minecraft Name", value=f"`{mc_name}`", inline=True)
+                    embed.add_field(name="Region",          value=region,          inline=True)
+                    embed.add_field(name="Account Type",    value=account_type,    inline=True)
+                    embed.add_field(name="Discord",         value=f"<@{user_key}>", inline=False)
+                    embed.set_thumbnail(url=f"https://mc-heads.net/avatar/{mc_name}/64")
+                    embed.set_footer(text="Staff: click 🔒 Close Channel when the test session is done.")
+                    await temp_channel.send(
+                        content=f"<@{user_key}> — your **{self.gamemode}** tier test has been requested! A tester will be with you shortly.",
+                        embed=embed,
+                        view=TempChannelView(),
+                    )
+                except discord.Forbidden:
+                    print(f"[GamemodeButton] Missing permission to create channel in category {cat_id}")
+                    save_data(data)
+                except Exception as ch_err:
+                    print(f"[GamemodeButton] Temp channel creation error: {ch_err}")
+                    save_data(data)
+            else:
+                save_data(data)
+
+            role_line    = f"\n🎭 You've been given the **{role_assigned}** role!" if role_assigned else ""
+            channel_line = f"\n📂 Your test channel: {temp_channel.mention}" if temp_channel else ""
             await interaction.response.send_message(
-                f"✅ **{mc_name}** added to the **{self.gamemode}** waitlist!\n"
-                f"⏰ A tester will ping you soon. Make sure your DMs are open.{role_line}",
+                f"✅ Your **{self.gamemode}** tier test request has been submitted!\n"
+                f"⏰ A tester will reach you shortly.{role_line}{channel_line}",
                 ephemeral=True,
             )
-            if interaction.guild:
-                try:
-                    await update_waitlist_channel(interaction.guild, self.gamemode, data)
-                    # Ping testers — case-insensitive role lookup
-                    tester_role_id = next((v for k, v in gm_roles.items() if k.lower() == gm_key_lower), None)
-                    ch_info = data.get("waitlist_channels", {}).get(self.gamemode, {})
-                    wl_channel = interaction.guild.get_channel(int(ch_info["channel_id"])) if ch_info.get("channel_id") else None
-                    if tester_role_id and wl_channel:
-                        tester_role = interaction.guild.get_role(int(tester_role_id))
-                        if tester_role:
-                            await wl_channel.send(
-                                f"{tester_role.mention} 📥 **{mc_name}** joined the **{self.gamemode}** waitlist! ({len(queue)} in queue)",
-                                allowed_mentions=discord.AllowedMentions(roles=True),
-                            )
-                except Exception as ch_err:
-                    print(f"Channel update error: {ch_err}")
         except Exception as e:
             print(f"GamemodeButton error: {e}")
             try:
@@ -710,6 +779,48 @@ class DeleteWaitlistView(discord.ui.View):
         self.add_item(DeleteWaitlistButton(gamemode))
 
 
+class TempChannelView(discord.ui.View):
+    """Persistent view posted inside every private tier-test temp channel."""
+
+    def __init__(self):
+        super().__init__(timeout=None)
+
+    @discord.ui.button(
+        label="Close Channel", emoji="🔒",
+        style=discord.ButtonStyle.danger,
+        custom_id="close_temp_channel",
+    )
+    async def close_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        data = load_data()
+        is_admin = interaction.user.guild_permissions.administrator
+        is_owner = interaction.user.id == interaction.guild.owner_id
+        role_id = data.get("command_roles", {}).get("clearwaitlist")
+        has_role = role_id and any(str(r.id) == str(role_id) for r in interaction.user.roles)
+
+        if not (is_admin or is_owner or has_role):
+            await interaction.response.send_message(
+                "❌ Only staff can close this channel.", ephemeral=True
+            )
+            return
+
+        # Remove from temp_channels tracking
+        channel_id = interaction.channel_id
+        temp_channels = data.get("temp_channels", {})
+        for uid, channels in list(temp_channels.items()):
+            for gm, cid in list(channels.items()):
+                if int(cid) == channel_id:
+                    del temp_channels[uid][gm]
+                    if not temp_channels[uid]:
+                        del temp_channels[uid]
+                    break
+        data["temp_channels"] = temp_channels
+        save_data(data)
+
+        await interaction.response.send_message("🔒 Closing channel…", ephemeral=True)
+        await asyncio.sleep(1)
+        await interaction.channel.delete(reason=f"Tier test closed by {interaction.user}")
+
+
 _replit_domain = os.environ.get("REPLIT_DEV_DOMAIN", "")
 WEBSITE_URL = os.environ.get("WEBSITE_URL", f"https://{_replit_domain}" if _replit_domain else "")
 
@@ -744,6 +855,7 @@ async def on_ready():
     bot.add_view(PanelView(gamemodes))
     bot.add_view(RegionSelectView())
     bot.add_view(AccountTypeSelectView())
+    bot.add_view(TempChannelView())
     for gm in gamemodes:
         bot.add_view(DeleteWaitlistView(gm))
 
