@@ -582,48 +582,49 @@ class GamemodeButton(discord.ui.Button):
         try:
             data = load_data()
             user_key = str(interaction.user.id)
-            profile = data.get("profiles", {}).get(user_key)
 
-            if not profile:
-                await interaction.response.send_message(
-                    "❌ Please click **Verify Profile** first before joining a waitlist!",
-                    ephemeral=True,
-                )
-                return
-
-            mc_name = profile["minecraft_username"]
-
-            # Add to waitlist data (keeps /nexttester compatible)
-            waitlist = data.setdefault("waitlist", {})
-            queue = waitlist.setdefault(self.gamemode, [])
-            if user_key not in queue:
-                queue.append(user_key)
-
-            # Auto-assign gamemode role (case-insensitive)
+            # Assign the gamemode role (case-insensitive match)
             gm_roles = data.get("gamemode_roles", {})
             gm_key_lower = self.gamemode.lower()
             role_id = next((v for k, v in gm_roles.items() if k.lower() == gm_key_lower), None)
 
-            role_assigned = None
-            if interaction.guild and role_id:
-                role = interaction.guild.get_role(int(role_id))
-                if role:
-                    try:
-                        member = interaction.guild.get_member(interaction.user.id)
-                        if member:
-                            await member.add_roles(role, reason=f"Requested {self.gamemode} tier test via panel")
-                            role_assigned = role.name
-                    except discord.Forbidden:
-                        print(f"[GamemodeButton] Missing permission to assign role '{role.name}'")
-                    except Exception as re:
-                        print(f"[GamemodeButton] Role assign error: {re}")
+            if not role_id:
+                await interaction.response.send_message(
+                    f"❌ No role is linked to **{self.gamemode}** yet. Ask an admin to use `/setgamerole`.",
+                    ephemeral=True,
+                )
+                return
 
-            save_data(data)
+            role = interaction.guild.get_role(int(role_id)) if interaction.guild else None
+            if not role:
+                await interaction.response.send_message(
+                    f"❌ The role for **{self.gamemode}** could not be found. Please contact an admin.",
+                    ephemeral=True,
+                )
+                return
 
-            role_line = f"\n🎭 You've been given the **{role_assigned}** role!" if role_assigned else ""
+            member = interaction.guild.get_member(interaction.user.id)
+            if not member:
+                await interaction.response.send_message("❌ Could not find your member profile.", ephemeral=True)
+                return
+
+            if role in member.roles:
+                await interaction.response.send_message(
+                    f"⏳ You already have the **{role.name}** role!", ephemeral=True
+                )
+                return
+
+            try:
+                await member.add_roles(role, reason=f"Selected {self.gamemode} on the testing panel")
+            except discord.Forbidden:
+                await interaction.response.send_message(
+                    "❌ Bot lacks permission to assign roles. Make sure its role is ranked above the gamemode roles.",
+                    ephemeral=True,
+                )
+                return
+
             await interaction.response.send_message(
-                f"✅ **{mc_name}** has been added to the **{self.gamemode}** waitlist!\n"
-                f"⏰ A tester will ping you soon.{role_line}",
+                f"✅ You've been given the **{role.name}** role for **{self.gamemode}**!",
                 ephemeral=True,
             )
         except Exception as e:
