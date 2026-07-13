@@ -603,10 +603,7 @@ class GamemodeButton(discord.ui.Button):
                 )
                 return
 
-            member = interaction.guild.get_member(interaction.user.id)
-            if not member:
-                await interaction.response.send_message("❌ Could not find your member profile.", ephemeral=True)
-                return
+            member = interaction.user  # already a Member in guild interactions
 
             if role in member.roles:
                 await interaction.response.send_message(
