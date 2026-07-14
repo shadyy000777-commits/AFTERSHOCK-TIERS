@@ -9,14 +9,18 @@ git config user.name "Aftershock Bot"
 
 COMMIT_MSG="${1:-Update from Replit}"
 
-# NOTE: tiers_data.json, index.html, static/ and skins/ are live-synced directly
-# by the running bot via the GitHub Contents API on every change (see
-# _push_data_to_github / _push_website_to_github / _push_image_to_github in main.py).
-# This script must NEVER commit or push those files — doing so would force-push this
-# dev workspace's stale local copies over the production data the live bot just wrote,
-# effectively reverting test submissions on the website. Only code files are synced here.
+# NOTE: root-level tiers_data.json, index.html, static/ and skins/ are live-synced
+# directly by the running bot via the GitHub Contents API on every change (see
+# _push_data_to_github / _push_website_to_github / _push_image_to_github in main.py) —
+# that copy feeds Netlify (My-site/INDEX repos) and must NEVER be committed/pushed here,
+# or it would overwrite the live production data with this dev workspace's stale copy.
+#
+# website/index.html and website/static/ are DIFFERENT: that's the source Railway's
+# railway_server.py serves directly from its own git deployment (see Procfile). The bot
+# does NOT keep that copy in sync — it only gets updated when this script pushes it, so
+# it MUST be included here for Railway's site to reflect design/markup changes.
 
-CODE_FILES="main.py config.py requirements.txt railway_server.py Procfile railway.json nixpacks.toml runtime.txt requirements-web.txt push_to_github.sh replit.md"
+CODE_FILES="main.py config.py requirements.txt railway_server.py Procfile railway.json nixpacks.toml runtime.txt requirements-web.txt push_to_github.sh replit.md website/index.html website/static"
 
 # ── 1. Push bot code to AFTERSHOCK-TIERS ────────────────────────────────────
 echo "▶ Pushing to AFTERSHOCK-TIERS..."
