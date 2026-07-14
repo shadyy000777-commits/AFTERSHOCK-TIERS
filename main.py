@@ -1906,7 +1906,7 @@ def build_queue_embed(
     region: str = "",
 ) -> discord.Embed:
     color = discord.Color.red() if closed else discord.Color.green()
-    status = "🔴 CLOSED" if closed else "🟢 OPEN"
+    status = "<a:emoji_29:1526274280395116644> CLOSED" if closed else "<a:emoji_29:1526274258773217470> OPEN"
     title = f"<:emoji_39:1522696411723075654> {gamemode} Queue — {status}"
     embed = discord.Embed(title=title, color=color)
     embed.add_field(name="Tester", value=str(tester), inline=True)
