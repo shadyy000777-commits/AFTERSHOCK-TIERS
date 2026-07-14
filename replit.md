@@ -21,13 +21,11 @@ A self-contained Discord bot that replicates the MCTiers tier testing system for
 - The same process also serves a companion tier-list website (Flask, `main.py` + `website/`) on port 5000, showing the leaderboard/rankings from `tiers_data.json`.
 
 ## How to run on Replit
-`DISCORD_TOKEN` is already set as a Replit secret. The **Start application** workflow runs:
-```
-pip install -r requirements.txt -q && python main.py
-```
-This single process logs the Discord bot in AND serves the website on port 5000 (visible in the Replit preview pane).
+The Discord bot runs on Railway only now — NOT on Replit. Do not start the **Start application** workflow (`python main.py`) to "test" bot changes; running it here logs into Discord with the same `DISCORD_TOKEN` Railway uses, which causes duplicate/conflicting bot instances and made debugging harder.
 
-Note: `railway_server.py`, `Procfile`, and `railway.json` are leftovers from a previous Railway deployment and are not used on Replit.
+Instead, verify code changes with a syntax/import check, e.g. `python -m py_compile main.py`, and push to GitHub (`bash push_to_github.sh`) so Railway picks up the change. Only start the workflow if the user explicitly asks to run the bot on Replit again.
+
+Note: `railway_server.py`, `Procfile`, and `railway.json` are the website-only Railway service (no Discord login) — a separate Railway service runs `main.py` for the actual bot.
 
 ## User preferences
 - After committing changes to Discord bot code/commands (`main.py`, `config.py`, `requirements.txt`), always run `bash push_to_github.sh "<commit message>"` so those changes are pushed to the `Discord-bot` GitHub repo (and `AFTERSHOCK-TIERS`).
