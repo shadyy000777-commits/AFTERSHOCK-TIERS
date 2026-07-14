@@ -2074,6 +2074,13 @@ class QueueView(discord.ui.View):
         options = []
         for uid in self.members:
             member = interaction.guild.get_member(uid)
+            if not member:
+                try:
+                    member = await interaction.guild.fetch_member(uid)
+                except discord.NotFound:
+                    member = None
+                except discord.HTTPException:
+                    member = None
             label = member.display_name if member else f"User {uid}"
             options.append(discord.SelectOption(label=label, value=str(uid)))
 
@@ -2101,6 +2108,13 @@ class PlayerSelect(discord.ui.Select):
         tester = interaction.user
         player_id = int(self.values[0])
         player = guild.get_member(player_id) if guild else None
+        if guild and not player:
+            try:
+                player = await guild.fetch_member(player_id)
+            except discord.NotFound:
+                player = None
+            except discord.HTTPException:
+                player = None
 
         if not guild or not player:
             await interaction.response.send_message(
