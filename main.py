@@ -1969,7 +1969,6 @@ class QueueView(discord.ui.View):
                 pass
 
     async def _close(self, interaction: discord.Interaction):
-        active_queues.pop(self.channel_id, None)
         for item in self.children:
             item.disabled = True
         embed = build_queue_embed(self.gamemode, self.tester, self.members, closed=True, region=self.region)
@@ -2038,6 +2037,14 @@ class QueueView(discord.ui.View):
             await interaction.response.send_message(
                 "❌ Only the tester who opened this queue, or a staff member, can close it.",
                 ephemeral=True,
+            )
+            return
+        # Atomic pop (no `await` before this line) so a double-click/double-tap can only
+        # win this race once — the second click sees the queue already removed and bails
+        # out instead of posting a duplicate "No Testers Online" message.
+        if active_queues.pop(self.channel_id, None) is not self:
+            await interaction.response.send_message(
+                "⏳ This queue is already closing.", ephemeral=True
             )
             return
         await self._close(interaction)
