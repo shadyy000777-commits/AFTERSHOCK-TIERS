@@ -29,5 +29,5 @@ Note: `railway_server.py`, `Procfile`, and `railway.json` are the website-only R
 
 ## User preferences
 - After committing changes to Discord bot code/commands (`main.py`, `config.py`, `requirements.txt`), always run `bash push_to_github.sh "<commit message>"` so those changes are pushed to the `Discord-bot` GitHub repo (and `AFTERSHOCK-TIERS`).
-- After committing changes to website/player data (`index.html`, `tiers_data.json`, `static/`), always run the same script so those changes are pushed to the `INDEX` GitHub repo (connected to Netlify).
+- `tiers_data.json`, `index.html`, `static/` and `skins/` are live-synced directly by the running production bot itself (via the GitHub Contents API, see `_push_data_to_github`/`_push_website_to_github`/`_push_image_to_github` in `main.py`) to `AFTERSHOCK-TIERS`, `My-site`, and `INDEX` on every change (e.g. every `/submittest`). `push_to_github.sh` must never commit or push these files — this repl's local copies are stale dev snapshots, and force-pushing them would overwrite live production data and make it look like website updates are being reverted. The script now only syncs actual code files.
 - Do this automatically after relevant changes — don't wait to be asked to push each time.
