@@ -9,47 +9,29 @@ git config user.name "Aftershock Bot"
 
 COMMIT_MSG="${1:-Update from Replit}"
 
-# ── 1. Push full bot to AFTERSHOCK-TIERS ────────────────────────────────────
+# NOTE: tiers_data.json, index.html, static/ and skins/ are live-synced directly
+# by the running bot via the GitHub Contents API on every change (see
+# _push_data_to_github / _push_website_to_github / _push_image_to_github in main.py).
+# This script must NEVER commit or push those files — doing so would force-push this
+# dev workspace's stale local copies over the production data the live bot just wrote,
+# effectively reverting test submissions on the website. Only code files are synced here.
+
+CODE_FILES="main.py config.py requirements.txt railway_server.py Procfile railway.json nixpacks.toml runtime.txt requirements-web.txt push_to_github.sh replit.md"
+
+# ── 1. Push bot code to AFTERSHOCK-TIERS ────────────────────────────────────
 echo "▶ Pushing to AFTERSHOCK-TIERS..."
 git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/shadyy000777-commits/AFTERSHOCK-TIERS
-if ! git diff --quiet || ! git diff --cached --quiet || git ls-files --others --exclude-standard | grep -q .; then
-    git add -A
+git add -- $CODE_FILES
+if ! git diff --cached --quiet; then
     git commit -m "$COMMIT_MSG"
     echo "✅ Committed: $COMMIT_MSG"
 else
     echo "ℹ️  Nothing new to commit."
 fi
-git push --force origin main
+git push origin main
 echo "✅ Pushed to AFTERSHOCK-TIERS"
 
-# ── 2. Push website files to INDEX (connected to Netlify) ───────────────────
-echo ""
-echo "▶ Pushing website files to INDEX..."
-INDEX_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/shadyy000777-commits/INDEX"
-
-# Fetch current INDEX state
-git fetch "$INDEX_URL" main 2>/dev/null
-
-# Create a temporary branch from INDEX main
-git checkout -b _index-push FETCH_HEAD 2>/dev/null
-
-# Overlay the latest website files from main
-git checkout main -- index.html tiers_data.json static/
-
-# Commit and push
-if ! git diff --cached --quiet; then
-    git commit -m "$COMMIT_MSG"
-    git push "$INDEX_URL" _index-push:main --force
-    echo "✅ Pushed website files to INDEX → Netlify will redeploy"
-else
-    echo "ℹ️  No website changes to push to INDEX."
-fi
-
-# Clean up temp branch
-git checkout main
-git branch -D _index-push 2>/dev/null || true
-
-# ── 3. Push bot code files to Discord-bot repo ──────────────────────────────
+# ── 2. Push bot code files to Discord-bot repo ──────────────────────────────
 echo ""
 echo "▶ Pushing bot files to Discord-bot..."
 DISCORD_BOT_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/shadyy000777-commits/Discord-bot"
