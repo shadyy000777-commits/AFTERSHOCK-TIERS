@@ -365,6 +365,8 @@ DEFAULT_GAMEMODES = ["Sword", "Axe", "NethOP", "UHC", "SMP", "Pot", "Mace", "Cry
 active_queues: dict[int, "QueueView"] = {}
 session_ended_messages: dict[int, int] = {}  # channel_id -> message_id of "No Testers Online" embed
 
+PRIVATE_CHAT_CATEGORY_ID = 1512697649218977872  # category for tester <-> player private channels
+
 def build_waitlist_embed(gamemode: str, queue: list, profiles: dict) -> discord.Embed:
     embed = discord.Embed(
         title=f"📋 {gamemode} — Waitlist",
@@ -2048,6 +2050,100 @@ class QueueView(discord.ui.View):
             )
             return
         await self._close(interaction)
+
+    @discord.ui.button(label="Message Player", emoji="💬", style=discord.ButtonStyle.primary, custom_id="queue_message_player")
+    async def message_player_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        data = load_data()
+        if not _is_tester_or_admin(interaction, self.tester.id, data):
+            await interaction.response.send_message(
+                "❌ Only the tester who opened this queue, or a staff member, can message a player.",
+                ephemeral=True,
+            )
+            return
+        if not self.members:
+            await interaction.response.send_message(
+                "❌ There's nobody in the queue to message yet.", ephemeral=True
+            )
+            return
+        if not interaction.guild:
+            await interaction.response.send_message(
+                "❌ This only works inside a server.", ephemeral=True
+            )
+            return
+
+        options = []
+        for uid in self.members:
+            member = interaction.guild.get_member(uid)
+            label = member.display_name if member else f"User {uid}"
+            options.append(discord.SelectOption(label=label, value=str(uid)))
+
+        view = PlayerSelectView(tester=interaction.user, options=options)
+        await interaction.response.send_message(
+            "Pick a player to open a private channel with:", view=view, ephemeral=True
+        )
+
+
+class PlayerSelectView(discord.ui.View):
+    """Ephemeral select shown to a tester to pick which queued player to open a private channel with."""
+
+    def __init__(self, tester: discord.abc.User, options: list[discord.SelectOption]):
+        super().__init__(timeout=120)
+        self.tester = tester
+        self.add_item(PlayerSelect(options))
+
+
+class PlayerSelect(discord.ui.Select):
+    def __init__(self, options: list[discord.SelectOption]):
+        super().__init__(placeholder="Select a player…", min_values=1, max_values=1, options=options)
+
+    async def callback(self, interaction: discord.Interaction):
+        guild = interaction.guild
+        tester = interaction.user
+        player_id = int(self.values[0])
+        player = guild.get_member(player_id) if guild else None
+
+        if not guild or not player:
+            await interaction.response.send_message(
+                "❌ That player is no longer in this server.", ephemeral=True
+            )
+            return
+
+        category = guild.get_channel(PRIVATE_CHAT_CATEGORY_ID)
+        if not isinstance(category, discord.CategoryChannel):
+            category = None
+
+        overwrites = {
+            guild.default_role: discord.PermissionOverwrite(view_channel=False),
+            guild.me: discord.PermissionOverwrite(view_channel=True, send_messages=True, manage_channels=True),
+            tester: discord.PermissionOverwrite(view_channel=True, send_messages=True, read_message_history=True),
+            player: discord.PermissionOverwrite(view_channel=True, send_messages=True, read_message_history=True),
+        }
+
+        safe_name = f"chat-{tester.name}-{player.name}".lower().replace(" ", "-")[:90]
+        try:
+            channel = await guild.create_text_channel(
+                name=safe_name,
+                category=category,
+                overwrites=overwrites,
+                topic=f"Private chat between tester {tester} and {player}.",
+                reason=f"Private test chat opened by {tester}",
+            )
+        except discord.Forbidden:
+            await interaction.response.send_message(
+                "❌ I don't have permission to create channels in that category.", ephemeral=True
+            )
+            return
+        except Exception as e:
+            await interaction.response.send_message(f"❌ Failed to create channel: {e}", ephemeral=True)
+            return
+
+        await channel.send(
+            f"👋 {tester.mention} wants to talk with {player.mention} privately. "
+            f"Only the two of you (and staff) can see this channel."
+        )
+        await interaction.response.send_message(
+            f"✅ Private channel created: {channel.mention}", ephemeral=True
+        )
 
 
 @tree.command(name="queue", description="Open a live queue for a gamemode (tester closes manually)")
