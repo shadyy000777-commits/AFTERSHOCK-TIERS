@@ -770,6 +770,7 @@ async def on_ready():
     bot.add_view(RegionSelectView())
     bot.add_view(AccountTypeSelectView())
     bot.add_view(TempChannelView())
+    bot.add_view(PrivateChatView())
     for gm in gamemodes:
         bot.add_view(DeleteWaitlistView(gm))
 
@@ -2151,13 +2152,91 @@ class PlayerSelect(discord.ui.Select):
             await interaction.response.send_message(f"❌ Failed to create channel: {e}", ephemeral=True)
             return
 
+        data = load_data()
+        data.setdefault("private_chats", {})[str(channel.id)] = {
+            "tester_id": tester.id,
+            "player_id": player.id,
+        }
+        save_data(data)
+
         await channel.send(
             f"👋 {tester.mention} wants to talk with {player.mention} privately. "
-            f"Only the two of you (and staff) can see this channel."
+            f"Only the two of you (and staff) can see this channel.",
+            view=PrivateChatView(),
         )
         await interaction.response.send_message(
             f"✅ Private channel created: {channel.mention}", ephemeral=True
         )
+
+
+def _is_private_chat_staff(interaction: discord.Interaction, chat_info: dict, data: dict) -> bool:
+    """Only the tester who opened this private chat, or an admin/Volunteer Tester, may close/delete it."""
+    user = interaction.user
+    if chat_info and user.id == chat_info.get("tester_id"):
+        return True
+    is_admin = user.guild_permissions.administrator
+    is_owner = interaction.guild is not None and user.id == interaction.guild.owner_id
+    role_id = data.get("command_roles", {}).get("testing")
+    has_role = role_id and any(str(r.id) == str(role_id) for r in getattr(user, "roles", []))
+    return bool(is_admin or is_owner or has_role)
+
+
+class PrivateChatView(discord.ui.View):
+    """Persistent view posted in every tester<->player private channel, with Close/Delete Ticket controls."""
+
+    def __init__(self):
+        super().__init__(timeout=None)
+
+    @discord.ui.button(label="Close Ticket", emoji="🔒", style=discord.ButtonStyle.secondary, custom_id="private_chat_close")
+    async def close_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        data = load_data()
+        chat_info = data.get("private_chats", {}).get(str(interaction.channel_id))
+
+        if not _is_private_chat_staff(interaction, chat_info, data):
+            await interaction.response.send_message(
+                "❌ Only the tester who opened this chat, or a staff member, can close it.",
+                ephemeral=True,
+            )
+            return
+
+        channel = interaction.channel
+        player_id = chat_info.get("player_id") if chat_info else None
+        if player_id:
+            player = interaction.guild.get_member(player_id)
+            if player:
+                await channel.set_permissions(player, view_channel=True, send_messages=False)
+
+        if not channel.name.startswith("closed-"):
+            try:
+                await channel.edit(name=f"closed-{channel.name}"[:100])
+            except discord.HTTPException:
+                pass
+
+        button.disabled = True
+        await interaction.response.edit_message(view=self)
+        await channel.send(
+            f"🔒 Ticket closed by {interaction.user.mention}. The player can no longer send messages here. "
+            f"Staff can use **Delete Ticket** to remove this channel."
+        )
+
+    @discord.ui.button(label="Delete Ticket", emoji="🗑️", style=discord.ButtonStyle.danger, custom_id="private_chat_delete")
+    async def delete_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        data = load_data()
+        chat_info = data.get("private_chats", {}).get(str(interaction.channel_id))
+
+        if not _is_private_chat_staff(interaction, chat_info, data):
+            await interaction.response.send_message(
+                "❌ Only the tester who opened this chat, or a staff member, can delete it.",
+                ephemeral=True,
+            )
+            return
+
+        data.get("private_chats", {}).pop(str(interaction.channel_id), None)
+        save_data(data)
+
+        await interaction.response.send_message("🗑️ Deleting this channel…", ephemeral=True)
+        await asyncio.sleep(1)
+        await interaction.channel.delete(reason=f"Private chat deleted by {interaction.user}")
 
 
 @tree.command(name="queue", description="Open a live queue for a gamemode (tester closes manually)")
