@@ -11,8 +11,15 @@ WEBSITE_DIR     = os.path.join(os.path.dirname(os.path.abspath(__file__)), "webs
 STATIC_DIR      = os.path.join(WEBSITE_DIR, "static")
 
 
-def _fetch(url: str, timeout: int = 10):
-    req = urllib.request.Request(url, headers={"User-Agent": "railway-server/1.0"})
+def _fetch(url: str, timeout: int = 10, nocache: bool = False):
+    headers = {"User-Agent": "railway-server/1.0"}
+    if nocache:
+        headers["Cache-Control"] = "no-cache, no-store"
+        headers["Pragma"] = "no-cache"
+        # Append a timestamp so GitHub CDN edge treats it as a distinct URL
+        sep = "&" if "?" in url else "?"
+        url = f"{url}{sep}_={int(__import__('time').time())}"
+    req = urllib.request.Request(url, headers=headers)
     with urllib.request.urlopen(req, timeout=timeout) as r:
         return r.read(), r.headers.get("Content-Type", "application/octet-stream")
 
@@ -33,7 +40,7 @@ def tiers_data():
     """Fetch live tiers_data.json from AFTERSHOCK-TIERS — bot pushes here on every tier change."""
     url = f"{GITHUB_RAW_BASE}/tiers_data.json"
     try:
-        data, _ = _fetch(url)
+        data, _ = _fetch(url, nocache=True)
         resp = make_response(data, 200)
         resp.headers["Content-Type"] = "application/json"
         resp.headers["Access-Control-Allow-Origin"] = "*"
