@@ -140,15 +140,23 @@ def load_data() -> dict:
     return {"players": {}, "tests": []}
 
 
-def save_data(data: dict):
+async def save_data(data: dict):
+    """Write locally, then push to GitHub and WAIT for it to finish.
+
+    Previously this fired the GitHub push as a background task and returned
+    immediately, so the command could report success to Discord before the
+    data was actually safe on GitHub. If the process restarted/redeployed in
+    that window (e.g. right after a code deploy), the push never completed
+    and the test silently vanished with no error anywhere. Awaiting it here
+    means: by the time the command's success message is sent, the data is
+    already confirmed on GitHub — a redeploy after that point can't lose it.
+    """
     with open(DATA_FILE, "w") as f:
         json.dump(data, f, indent=2)
     try:
-        loop = asyncio.get_event_loop()
-        if loop.is_running():
-            loop.create_task(_push_data_to_github())
-    except Exception:
-        pass
+        await _push_data_to_github()
+    except Exception as e:
+        print(f"[save_data] GitHub push failed: {e}")
 
 
 STAFF_COMMANDS = [
@@ -454,7 +462,7 @@ async def update_waitlist_channel(guild: discord.Guild, gamemode: str, data: dic
         message = await channel.send(embed=embed, view=view)
         channels_data[gamemode]["message_id"] = message.id
 
-    save_data(data)
+    await save_data(data)
 
 
 class McUsernameModal(discord.ui.Modal, title="Verify Your Profile"):
@@ -480,7 +488,7 @@ class McUsernameModal(discord.ui.Modal, title="Verify Your Profile"):
             "account_type":      self.account_type,
             "verified_at":       datetime.datetime.utcnow().isoformat(),
         }
-        save_data(data)
+        await save_data(data)
         region_flags = {"NA": "🇺🇸", "EU": "🇪🇺", "AS": "🇮🇳", "SA": "🇧🇷", "OCE": "🇦🇺"}
         flag = region_flags.get(self.region, "🌍")
         account_emoji = "☕" if self.account_type == "Java" else "🪨"
@@ -673,7 +681,7 @@ class DeleteWaitlistButton(discord.ui.Button):
         await interaction.response.defer(ephemeral=True)
 
         data.setdefault("waitlist", {})[self.gamemode] = []
-        save_data(data)
+        await save_data(data)
 
         # Update the embed in the same channel (don't delete it — reuse it)
         try:
@@ -728,7 +736,7 @@ class TempChannelView(discord.ui.View):
                         del temp_channels[uid]
                     break
         data["temp_channels"] = temp_channels
-        save_data(data)
+        await save_data(data)
 
         await interaction.response.send_message("🔒 Closing channel…", ephemeral=True)
         await asyncio.sleep(1)
@@ -758,7 +766,7 @@ async def resolve_discord_names():
                     except Exception:
                         pass
     if changed:
-        save_data(data)
+        await save_data(data)
     print(f"Resolved {len(names)} Discord display names for leaderboard.")
 
 
@@ -835,7 +843,7 @@ async def settier(interaction: discord.Interaction, username: str, gamemode: str
         "updated_at": datetime.datetime.utcnow().isoformat(),
         "updated_by": str(interaction.user),
     }
-    save_data(data)
+    await save_data(data)
 
     embed = discord.Embed(title="Tier Updated", color=discord.Color.green())
     embed.add_field(name="Player", value=username, inline=True)
@@ -884,7 +892,7 @@ async def set_region(
             prof["region"] = region.value
             break
 
-    save_data(data)
+    await save_data(data)
 
     region_flags = {"NA": "🇺🇸", "EU": "🇪🇺", "AS": "🇮🇳", "SA": "🇧🇷", "OCE": "🇦🇺"}
     flag = region_flags.get(region.value, "🌍")
@@ -1065,7 +1073,7 @@ async def submittest(
             "updated_by": str(interaction.user),
         }
 
-    save_data(data)
+    await save_data(data)
 
     # Remove gamemode role from the player after their test result is uploaded
     role_removed = None
@@ -1307,7 +1315,7 @@ async def verify_cmd(
                 players[mention_key][gm] = val
         del players[plain_key]
 
-    save_data(data)
+    await save_data(data)
 
     region_flags = {"NA": "🇺🇸", "EU": "🇪🇺", "AS": "🇮🇳", "SA": "🇧🇷", "OCE": "🇦🇺"}
     flag = region_flags.get(region, "🌍")
@@ -1370,7 +1378,7 @@ async def image_cmd(interaction: discord.Interaction, image: discord.Attachment)
 
     skin_url = f"/skins/{filename}"
     data["profiles"][user_key]["skin_url"] = skin_url
-    save_data(data)
+    await save_data(data)
 
     # Push image to GitHub so Netlify can serve it
     loop = asyncio.get_event_loop()
@@ -1435,7 +1443,7 @@ async def setimage_cmd(interaction: discord.Interaction, member: discord.Member,
 
     skin_url = f"/skins/{filename}"
     data["profiles"][user_key]["skin_url"] = skin_url
-    save_data(data)
+    await save_data(data)
 
     # Push image to GitHub so Netlify can serve it
     loop = asyncio.get_event_loop()
@@ -1504,7 +1512,7 @@ async def setimageall_cmd(interaction: discord.Interaction, image: discord.Attac
         except Exception:
             continue
 
-    save_data(data)
+    await save_data(data)
 
     embed = discord.Embed(
         title="✅ Image Set for All Players",
@@ -1625,7 +1633,7 @@ async def remove_player(interaction: discord.Interaction, position: int):
     display_name, (raw_key, pts) = sorted_players[position - 1]
 
     del data["players"][raw_key]
-    save_data(data)
+    await save_data(data)
 
     embed = discord.Embed(title="🗑️ Player Removed from Leaderboard", color=discord.Color.red())
     embed.add_field(name="Position", value=f"#{position}", inline=True)
@@ -1688,7 +1696,7 @@ async def removetier(interaction: discord.Interaction, username: str, gamemode: 
 
     old_tier = player_data[gm_key]["tier"]
     del data["players"][player_key][gm_key]
-    save_data(data)
+    await save_data(data)
 
     embed = discord.Embed(
         title="🗑️ Gamemode Tier Removed",
@@ -1743,7 +1751,7 @@ async def addgamemode(interaction: discord.Interaction, name: str, emoji: str = 
     gamemodes.append(name)
     if emoji:
         GAMEMODE_EMOJIS[name] = emoji
-    save_data(data)
+    await save_data(data)
     await interaction.response.send_message(
         f"✅ Added **{name}** to the panel. Run `/panel` again to post an updated panel.", ephemeral=True
     )
@@ -1762,7 +1770,7 @@ async def removegamemode(interaction: discord.Interaction, name: str):
 
     gamemodes.remove(name)
     data["gamemodes"] = gamemodes
-    save_data(data)
+    await save_data(data)
     await interaction.response.send_message(
         f"✅ Removed **{name}** from the panel. Run `/panel` again to post an updated panel.", ephemeral=True
     )
@@ -1805,7 +1813,7 @@ async def clearwaitlist(interaction: discord.Interaction, gamemode: str):
         return
 
     data["waitlist"][gamemode] = []
-    save_data(data)
+    await save_data(data)
     await interaction.response.send_message(f"✅ Cleared the **{gamemode}** waitlist.", ephemeral=True)
     if interaction.guild:
         try:
@@ -1827,7 +1835,7 @@ async def clearallwaitlists(interaction: discord.Interaction):
     cleared = [gm for gm, q in waitlist.items() if q]
     for gm in cleared:
         data["waitlist"][gm] = []
-    save_data(data)
+    await save_data(data)
 
     await interaction.response.send_message(
         f"✅ Cleared **{len(cleared)}** waitlist(s): {', '.join(f'**{g}**' for g in cleared)}",
@@ -1855,7 +1863,7 @@ async def nexttester(interaction: discord.Interaction, gamemode: str):
 
     next_uid = queue.pop(0)
     data["waitlist"][gamemode] = queue
-    save_data(data)
+    await save_data(data)
 
     profile = data.get("profiles", {}).get(next_uid)
     mc_name = profile["minecraft_username"] if profile else "Unknown"
@@ -1891,7 +1899,7 @@ async def nexttester(interaction: discord.Interaction, gamemode: str):
 async def setwaitlistcategory(interaction: discord.Interaction, category: discord.CategoryChannel):
     data = load_data()
     data["waitlist_category_id"] = str(category.id)
-    save_data(data)
+    await save_data(data)
     await interaction.response.send_message(
         f"✅ Waitlist channels will now be created under **{category.name}**.",
         ephemeral=True,
@@ -2157,7 +2165,7 @@ class PlayerSelect(discord.ui.Select):
             "tester_id": tester.id,
             "player_id": player.id,
         }
-        save_data(data)
+        await save_data(data)
 
         await channel.send(
             f"👋 {tester.mention} wants to talk with {player.mention} privately. "
@@ -2232,7 +2240,7 @@ class PrivateChatView(discord.ui.View):
             return
 
         data.get("private_chats", {}).pop(str(interaction.channel_id), None)
-        save_data(data)
+        await save_data(data)
 
         await interaction.response.send_message("🗑️ Deleting this channel…", ephemeral=True)
         await asyncio.sleep(1)
@@ -2344,7 +2352,7 @@ async def setrole(interaction: discord.Interaction, command: str, role: discord.
         return
     data = load_data()
     data.setdefault("command_roles", {})[command] = str(role.id)
-    save_data(data)
+    await save_data(data)
     await interaction.response.send_message(
         f"✅ **/{command}** is now restricted to members with the **{role.name}** role.",
         ephemeral=True,
@@ -2389,7 +2397,7 @@ async def viewroles(interaction: discord.Interaction):
 async def setgamerole(interaction: discord.Interaction, gamemode: str, role: discord.Role):
     data = load_data()
     data.setdefault("gamemode_roles", {})[gamemode] = str(role.id)
-    save_data(data)
+    await save_data(data)
     await interaction.response.send_message(
         f"✅ Players who click **{gamemode}** on the panel will now automatically receive the **{role.name}** role.",
         ephemeral=True,
@@ -2573,7 +2581,7 @@ async def pointsto(interaction: discord.Interaction, member: discord.Member, amo
     current = data["players"].setdefault(key, {}).get("bonus_points", 0)
     new_total = current + amount
     data["players"][key]["bonus_points"] = new_total
-    save_data(data)
+    await save_data(data)
 
     color = discord.Color.green() if amount >= 0 else discord.Color.red()
     sign = "+" if amount >= 0 else ""
@@ -2605,7 +2613,7 @@ async def point_cmd(interaction: discord.Interaction, member: discord.Member, am
     old_bonus = player_data.get("bonus_points", 0)
     new_bonus = old_bonus + amount
     player_data["bonus_points"] = new_bonus
-    save_data(data)
+    await save_data(data)
 
     # Calculate total score (tier pts + new bonus) to show website-accurate number
     tier_pts = sum(
