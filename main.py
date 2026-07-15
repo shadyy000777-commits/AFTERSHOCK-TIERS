@@ -1073,6 +1073,24 @@ async def submittest(
             "updated_by": str(interaction.user),
         }
 
+    # If the player's key is a Discord mention but they have no discord_names entry,
+    # resolve their display name now so the website can show them on the leaderboard.
+    if key.startswith("<@") and key.endswith(">"):
+        uid = key[2:-1]
+        if uid not in data.get("discord_names", {}):
+            resolved_name = None
+            if interaction.guild:
+                member = interaction.guild.get_member(int(uid))
+                if member:
+                    resolved_name = member.display_name
+            # If still unresolved but the staff entered a plain MC username (not a mention),
+            # use that as a fallback label so the player is at least visible on the site.
+            if not resolved_name and not username.startswith("<@"):
+                resolved_name = username
+            if resolved_name:
+                data.setdefault("discord_names", {})[uid] = resolved_name
+                print(f"[submittest] discord_names[{uid}] = {resolved_name!r}")
+
     await save_data(data)
 
     # Remove gamemode role from the player after their test result is uploaded
