@@ -47,3 +47,8 @@ outputType = "console"
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[userenv]
+
+[userenv.shared]
+DISABLE_DISCORD_BOT = "1"
