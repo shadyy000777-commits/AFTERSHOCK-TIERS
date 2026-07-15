@@ -549,28 +549,6 @@ class RegionSelectView(discord.ui.View):
         )
 
 
-class UpdateProfileButton(discord.ui.Button):
-    """Shown inside the 'already verified' message — starts the update flow."""
-    def __init__(self):
-        super().__init__(
-            label="Update Profile",
-            style=discord.ButtonStyle.secondary,
-            custom_id="update_profile_flow",
-        )
-
-    async def callback(self, interaction: discord.Interaction):
-        await interaction.response.edit_message(
-            content="**Step 1 of 3** — Select your region:",
-            view=RegionSelectView(),
-        )
-
-
-class AlreadyVerifiedView(discord.ui.View):
-    def __init__(self):
-        super().__init__(timeout=None)
-        self.add_item(UpdateProfileButton())
-
-
 class VerifyButton(discord.ui.Button):
     def __init__(self):
         super().__init__(
@@ -582,23 +560,6 @@ class VerifyButton(discord.ui.Button):
         )
 
     async def callback(self, interaction: discord.Interaction):
-        data = load_data()
-        existing = data.get("profiles", {}).get(str(interaction.user.id))
-        if existing and existing.get("minecraft_username"):
-            region_flags = {"NA": "🇺🇸", "EU": "🇪🇺", "AS": "🇮🇳", "SA": "🇧🇷", "OCE": "🇦🇺"}
-            flag = region_flags.get(existing.get("region", ""), "🌍")
-            account_emoji = "☕" if existing.get("account_type") == "Java" else "🪨"
-            await interaction.response.send_message(
-                f"✅ **You're already verified!**\n"
-                f"**Username:** `{existing['minecraft_username']}`\n"
-                f"**Region:** {flag} `{existing.get('region', 'Unknown')}`\n"
-                f"**Account:** {account_emoji} `{existing.get('account_type', 'Unknown')}`\n\n"
-                f"Your profile is saved and will not be wiped. "
-                f"Click **Update Profile** below only if you want to change your details.",
-                view=AlreadyVerifiedView(),
-                ephemeral=True,
-            )
-            return
         await interaction.response.send_message(
             "**Step 1 of 3** — Select your region:",
             view=RegionSelectView(),
