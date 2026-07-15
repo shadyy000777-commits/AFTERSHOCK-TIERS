@@ -4116,9 +4116,17 @@ def run_bot():
     bot.run(TOKEN)
 
 if __name__ == "__main__":
-    if not TOKEN:
-        raise RuntimeError(
-            "DISCORD_TOKEN is not set. Add it to your Replit Secrets or .env file."
-        )
-    threading.Thread(target=run_bot, daemon=True).start()
+    # DISABLE_DISCORD_BOT is set only in this Replit workspace's env — Railway's
+    # separate bot service (deployed from the Discord-bot repo) does not have it,
+    # so this only stops the bot here, never in production. This avoids running
+    # two live gateway connections on the same DISCORD_TOKEN at once, which was
+    # silently dropping/overwriting tester submissions (see replit.md).
+    if os.getenv("DISABLE_DISCORD_BOT") == "1":
+        print("[main] DISABLE_DISCORD_BOT=1 — skipping Discord bot login (website preview only).")
+    else:
+        if not TOKEN:
+            raise RuntimeError(
+                "DISCORD_TOKEN is not set. Add it to your Replit Secrets or .env file."
+            )
+        threading.Thread(target=run_bot, daemon=True).start()
     run_web()
