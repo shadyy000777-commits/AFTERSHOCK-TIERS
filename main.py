@@ -770,6 +770,22 @@ async def resolve_discord_names():
     print(f"Resolved {len(names)} Discord display names for leaderboard.")
 
 
+@tree.error
+async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
+    """Global slash-command error handler.
+
+    Silently ignores 'Interaction has already been acknowledged' (40060) and
+    'Unknown interaction' (10062) errors — these are expected noise when the
+    same bot token runs on both Railway and Replit simultaneously, because
+    both instances receive every INTERACTION_CREATE event but only one can
+    successfully respond.  Any other error is logged normally.
+    """
+    original = getattr(error, "original", error)
+    if isinstance(original, discord.errors.HTTPException) and original.code in (10062, 40060):
+        return  # dual-run artifact — safe to ignore
+    print(f"[app_command_error] {error}")
+
+
 @bot.event
 async def on_ready():
     data = load_data()
@@ -1621,7 +1637,9 @@ async def remove_player(interaction: discord.Interaction, position: int):
                 return id_to_profile[uid]
             if uid in discord_names:
                 return discord_names[uid]
-            return None
+            # No profile or name yet — use a fallback so the player still
+            # appears in the numbered list and can be removed by position.
+            return f"Player#{uid[-4:]}"
         return raw_key
 
     player_scores = {}
