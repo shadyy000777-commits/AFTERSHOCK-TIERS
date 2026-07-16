@@ -519,14 +519,39 @@ class McUsernameModal(discord.ui.Modal, title="Verify Your Profile"):
     async def on_submit(self, interaction: discord.Interaction):
         data = load_data()
         key = str(interaction.user.id)
+        mc_name = self.mc_username.value.strip()
+        mention_key = f"<@{key}>"
+
+        # Preserve existing skin_url if already set
+        existing_profile = data.get("profiles", {}).get(key, {})
         data.setdefault("profiles", {})[key] = {
-            "discord_id":        key,
-            "discord_name":      str(interaction.user),
-            "minecraft_username": self.mc_username.value.strip(),
-            "region":            self.region,
-            "account_type":      self.account_type,
-            "verified_at":       datetime.datetime.utcnow().isoformat(),
+            "discord_id":         key,
+            "discord_name":       str(interaction.user),
+            "minecraft_username": mc_name,
+            "region":             self.region,
+            "account_type":       self.account_type,
+            "verified_at":        datetime.datetime.utcnow().isoformat(),
+            "skin_url":           existing_profile.get("skin_url", ""),
         }
+
+        # Keep discord_names map up to date so the leaderboard can resolve names
+        data.setdefault("discord_names", {})[key] = mc_name
+
+        # Migrate plain-username player entry → <@discord_id> key so region,
+        # skin and profile are all linked correctly on the website.
+        players = data.setdefault("players", {})
+        plain_match = next(
+            (k for k in players if not k.startswith("<@") and k.lower() == mc_name.lower()),
+            None,
+        )
+        if plain_match and mention_key not in players:
+            players[mention_key] = players.pop(plain_match)
+        elif plain_match and mention_key in players:
+            for gm, val in players[plain_match].items():
+                if gm not in players[mention_key]:
+                    players[mention_key][gm] = val
+            del players[plain_match]
+
         await save_data(data)
         region_flags = {"NA": "🇺🇸", "EU": "🇪🇺", "AS": "🇮🇳", "SA": "🇧🇷", "OCE": "🇦🇺"}
         flag = region_flags.get(self.region, "🌍")
