@@ -879,6 +879,23 @@ async def on_ready():
     await _push_website_to_github()
     await _push_data_to_github()
 
+    # Start background task: re-sync from GitHub every 60 seconds so both the
+    # Replit and Railway bot instances stay current even when Discord routes a
+    # /submittest to the other instance (which may have pushed newer data).
+    bot.loop.create_task(_periodic_github_sync())
+
+
+async def _periodic_github_sync():
+    """Pull latest tiers_data.json from GitHub every 60 s so both bot instances
+    stay current even when Discord routes a /submittest to the other instance."""
+    await asyncio.sleep(60)  # let startup finish first
+    while True:
+        try:
+            await _pull_data_from_github()
+        except Exception as e:
+            print(f"[Periodic sync] Error: {e}")
+        await asyncio.sleep(60)
+
 
 @bot.event
 async def on_guild_join(guild: discord.Guild):

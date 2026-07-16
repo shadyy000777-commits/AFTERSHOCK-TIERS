@@ -1,6 +1,7 @@
 import os
 import json
 import base64
+import time
 import urllib.request
 from flask import Flask, send_from_directory, make_response
 from waitress import serve
@@ -16,6 +17,12 @@ GITHUB_API_BASE = f"https://api.github.com/repos/{GITHUB_OWNER}/{GITHUB_REPO}"
 GITHUB_RAW_BASE = f"https://raw.githubusercontent.com/{GITHUB_OWNER}/{GITHUB_REPO}/main"
 WEBSITE_DIR     = os.path.join(os.path.dirname(os.path.abspath(__file__)), "website")
 STATIC_DIR      = os.path.join(WEBSITE_DIR, "static")
+
+# In-memory cache for tiers_data.json — refreshed every 30 seconds.
+# Prevents GitHub API rate-limit hits (60 req/hr unauthenticated) when many
+# users load the website simultaneously.
+_tiers_cache: dict = {"data": None, "ts": 0.0}
+TIERS_CACHE_TTL = 30  # seconds
 
 
 def _fetch(url: str, timeout: int = 10, nocache: bool = False):
@@ -59,17 +66,29 @@ def index():
 
 @app.route("/tiers_data.json")
 def tiers_data():
-    """Fetch live tiers_data.json via GitHub API (bypasses CDN cache — always current data)."""
-    try:
-        data = _fetch_via_api("tiers_data.json")
-        resp = make_response(data, 200)
-        resp.headers["Content-Type"] = "application/json"
-        resp.headers["Access-Control-Allow-Origin"] = "*"
-        resp.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
-        return resp
-    except Exception as e:
-        print(f"[Railway] tiers_data fetch error: {e}")
-        return make_response('{"players":{}}', 502)
+    """Serve tiers_data.json — fetched via GitHub API and cached for 30 s.
+
+    Using the API (not raw CDN) means we always get current data, not a stale
+    CDN snapshot.  The 30-second in-memory cache prevents GitHub rate-limit hits
+    (60 req/hr unauthenticated) when many users load the site at once.
+    """
+    now = time.time()
+    if _tiers_cache["data"] is None or now - _tiers_cache["ts"] > TIERS_CACHE_TTL:
+        try:
+            fresh = _fetch_via_api("tiers_data.json")
+            _tiers_cache["data"] = fresh
+            _tiers_cache["ts"] = now
+            print(f"[Railway] tiers_data cache refreshed ({len(fresh)} bytes)")
+        except Exception as e:
+            print(f"[Railway] tiers_data fetch error: {e}")
+            if _tiers_cache["data"] is None:
+                return make_response('{"players":{}}', 502)
+            # Serve stale cache rather than a hard error
+    resp = make_response(_tiers_cache["data"], 200)
+    resp.headers["Content-Type"] = "application/json"
+    resp.headers["Access-Control-Allow-Origin"] = "*"
+    resp.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    return resp
 
 
 @app.route("/static/skins/<path:filename>")
