@@ -835,6 +835,7 @@ async def on_ready():
 
     await resolve_discord_names()
     await _push_website_to_github()
+    await _push_data_to_github()
 
 
 @bot.event
