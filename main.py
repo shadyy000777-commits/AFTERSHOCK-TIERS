@@ -560,6 +560,21 @@ class VerifyButton(discord.ui.Button):
         )
 
     async def callback(self, interaction: discord.Interaction):
+        data = load_data()
+        existing = data.get("profiles", {}).get(str(interaction.user.id))
+        if existing and existing.get("minecraft_username"):
+            region_flags = {"NA": "🇺🇸", "EU": "🇪🇺", "AS": "🇮🇳", "SA": "🇧🇷", "OCE": "🇦🇺"}
+            flag = region_flags.get(existing.get("region", ""), "🌍")
+            account_emoji = "☕" if existing.get("account_type") == "Java" else "🪨"
+            await interaction.response.send_message(
+                f"✅ **You're already verified!**\n"
+                f"**IGN:** `{existing['minecraft_username']}`\n"
+                f"**Region:** {flag} `{existing.get('region', '?')}`\n"
+                f"**Account:** {account_emoji} `{existing.get('account_type', '?')}`\n\n"
+                f"Your profile is saved — you don't need to verify again.",
+                ephemeral=True,
+            )
+            return
         await interaction.response.send_message(
             "**Step 1 of 3** — Select your region:",
             view=RegionSelectView(),
