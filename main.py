@@ -966,20 +966,35 @@ async def set_region(
     region: app_commands.Choice[str],
 ):
     data = load_data()
-    key = username.lower()
+    players = data.setdefault("players", {})
 
-    if key not in data["players"]:
+    # Find the player key case-insensitively — could be a plain username OR a
+    # <@discord_id> key (if the player was already verified).
+    key = next(
+        (k for k in players if k.lower() == username.lower()),
+        None,
+    )
+    if key is None:
+        # Also search by minecraft_username stored in profiles → <@discord_id> key
+        for prof in data.get("profiles", {}).values():
+            if prof.get("minecraft_username", "").lower() == username.lower():
+                mention_key = f"<@{prof['discord_id']}>"
+                if mention_key in players:
+                    key = mention_key
+                    break
+
+    if key is None:
         await interaction.response.send_message(
             f"❌ No player found named `{username}`. Set their tier first with `/settier`.", ephemeral=True
         )
         return
 
-    old_region = data["players"][key].get("region", "Not set")
-    data["players"][key]["region"] = region.value
+    old_region = players[key].get("region", "Not set")
+    players[key]["region"] = region.value
 
     # Also update profile if one exists with this minecraft_username
     for prof in data.get("profiles", {}).values():
-        if prof.get("minecraft_username", "").lower() == key:
+        if prof.get("minecraft_username", "").lower() == username.lower():
             prof["region"] = region.value
             break
 
@@ -1412,17 +1427,21 @@ async def verify_cmd(
     # Keep discord_names map up to date
     data.setdefault("discord_names", {})[user_key] = mc_name
 
-    # Merge any plain-username player entry into the <@discord_id> key
-    plain_key = mc_name.lower()
+    # Merge any plain-username player entry into the <@discord_id> key.
+    # Use a case-insensitive search so "Kaizen" and "kaizen" both match.
     players = data.setdefault("players", {})
-    if plain_key in players and mention_key not in players:
-        players[mention_key] = players.pop(plain_key)
-    elif plain_key in players and mention_key in players:
+    plain_match = next(
+        (k for k in players if not k.startswith("<@") and k.lower() == mc_name.lower()),
+        None,
+    )
+    if plain_match and mention_key not in players:
+        players[mention_key] = players.pop(plain_match)
+    elif plain_match and mention_key in players:
         # Merge — prefer the <@id> entry, copy any gamemodes missing from it
-        for gm, val in players[plain_key].items():
+        for gm, val in players[plain_match].items():
             if gm not in players[mention_key]:
                 players[mention_key][gm] = val
-        del players[plain_key]
+        del players[plain_match]
 
     await save_data(data)
 
@@ -4139,7 +4158,7 @@ def api_players():
             return None, "", ""
         # Check if this key matches any minecraft_username in profiles
         for v in profiles.values():
-            if v.get("minecraft_username", "").lower() == raw_key:
+            if v.get("minecraft_username", "").lower() == raw_key.lower():
                 return raw_key, v.get("region", "") or direct_region, v.get("skin_url", "")
         return raw_key, direct_region, ""
 
