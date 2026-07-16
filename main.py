@@ -4069,8 +4069,10 @@ LEADERBOARD_HTML = """<!DOCTYPE html>
 
 @web_app.route("/")
 def leaderboard_page():
-    from flask import make_response
-    resp = make_response(LEADERBOARD_HTML)
+    from flask import send_file, make_response
+    import os as _os
+    html_path = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "website", "index.html")
+    resp = make_response(send_file(html_path, mimetype="text/html"))
     resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
     resp.headers['Pragma'] = 'no-cache'
     return resp
