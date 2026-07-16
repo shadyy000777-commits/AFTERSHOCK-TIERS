@@ -2277,7 +2277,11 @@ class PrivateChatView(discord.ui.View):
                 pass
 
         button.disabled = True
-        await interaction.response.edit_message(view=self)
+        try:
+            await interaction.response.edit_message(view=self)
+        except discord.errors.HTTPException as e:
+            if e.code not in (10062, 40060):
+                raise
         await channel.send(
             f"🔒 Ticket closed by {interaction.user.mention}. The player can no longer send messages here. "
             f"Staff can use **Delete Ticket** to remove this channel."
@@ -2298,7 +2302,11 @@ class PrivateChatView(discord.ui.View):
         data.get("private_chats", {}).pop(str(interaction.channel_id), None)
         await save_data(data)
 
-        await interaction.response.send_message("🗑️ Deleting this channel…", ephemeral=True)
+        try:
+            await interaction.response.send_message("🗑️ Deleting this channel…", ephemeral=True)
+        except discord.errors.HTTPException as e:
+            if e.code not in (10062, 40060):
+                raise
         await asyncio.sleep(1)
         await interaction.channel.delete(reason=f"Private chat deleted by {interaction.user}")
 
