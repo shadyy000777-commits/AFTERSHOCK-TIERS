@@ -1,12 +1,19 @@
 import os
+import json
+import base64
 import urllib.request
 from flask import Flask, send_from_directory, make_response
 from waitress import serve
 
 app = Flask(__name__)
 
-# AFTERSHOCK-TIERS is now kept in sync by the bot (tiers_data.json + skins pushed on every change)
-GITHUB_RAW_BASE = "https://raw.githubusercontent.com/shadyy000777-commits/AFTERSHOCK-TIERS/main"
+# AFTERSHOCK-TIERS is kept in sync by the bot (tiers_data.json + skins pushed on every change)
+# Use the GitHub API (not raw CDN) for tiers_data.json — raw.githubusercontent.com has aggressive
+# CDN caching that can serve stale data for minutes even with cache-busting headers.
+GITHUB_OWNER    = "shadyy000777-commits"
+GITHUB_REPO     = "AFTERSHOCK-TIERS"
+GITHUB_API_BASE = f"https://api.github.com/repos/{GITHUB_OWNER}/{GITHUB_REPO}"
+GITHUB_RAW_BASE = f"https://raw.githubusercontent.com/{GITHUB_OWNER}/{GITHUB_REPO}/main"
 WEBSITE_DIR     = os.path.join(os.path.dirname(os.path.abspath(__file__)), "website")
 STATIC_DIR      = os.path.join(WEBSITE_DIR, "static")
 
@@ -16,12 +23,27 @@ def _fetch(url: str, timeout: int = 10, nocache: bool = False):
     if nocache:
         headers["Cache-Control"] = "no-cache, no-store"
         headers["Pragma"] = "no-cache"
-        # Append a timestamp so GitHub CDN edge treats it as a distinct URL
         sep = "&" if "?" in url else "?"
         url = f"{url}{sep}_={int(__import__('time').time())}"
     req = urllib.request.Request(url, headers=headers)
     with urllib.request.urlopen(req, timeout=timeout) as r:
         return r.read(), r.headers.get("Content-Type", "application/octet-stream")
+
+
+def _fetch_via_api(path: str, timeout: int = 10):
+    """Fetch a file from GitHub via the Contents API (always returns current data, no CDN cache)."""
+    url = f"{GITHUB_API_BASE}/contents/{path}"
+    headers = {
+        "User-Agent": "railway-server/1.0",
+        "Accept": "application/vnd.github.v3+json",
+    }
+    token = os.getenv("GITHUB_TOKEN")
+    if token:
+        headers["Authorization"] = f"token {token}"
+    req = urllib.request.Request(url, headers=headers)
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+        data = json.loads(r.read())
+    return base64.b64decode(data["content"].replace("\n", ""))
 
 
 @app.route("/")
@@ -37,10 +59,9 @@ def index():
 
 @app.route("/tiers_data.json")
 def tiers_data():
-    """Fetch live tiers_data.json from AFTERSHOCK-TIERS — bot pushes here on every tier change."""
-    url = f"{GITHUB_RAW_BASE}/tiers_data.json"
+    """Fetch live tiers_data.json via GitHub API (bypasses CDN cache — always current data)."""
     try:
-        data, _ = _fetch(url, nocache=True)
+        data = _fetch_via_api("tiers_data.json")
         resp = make_response(data, 200)
         resp.headers["Content-Type"] = "application/json"
         resp.headers["Access-Control-Allow-Origin"] = "*"
