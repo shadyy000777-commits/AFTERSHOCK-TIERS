@@ -2205,12 +2205,12 @@ class PlayerSelect(discord.ui.Select):
                 reason=f"Private test chat opened by {tester}",
             )
         except discord.Forbidden:
-            await interaction.response.send_message(
+            await interaction.followup.send(
                 "❌ I don't have permission to create channels in that category.", ephemeral=True
             )
             return
         except Exception as e:
-            await interaction.response.send_message(f"❌ Failed to create channel: {e}", ephemeral=True)
+            await interaction.followup.send(f"❌ Failed to create channel: {e}", ephemeral=True)
             return
 
         data = load_data()
