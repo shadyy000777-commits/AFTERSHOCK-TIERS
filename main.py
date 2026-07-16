@@ -2222,6 +2222,9 @@ class PlayerSelect(discord.ui.Select):
             f"Only the two of you (and staff) can see this channel.",
             view=PrivateChatView(),
         )
+        # Small delay so Discord's gateway can push the CHANNEL_CREATE event to
+        # all connected clients before we send the mention — prevents #unknown.
+        await asyncio.sleep(1.5)
         await interaction.response.send_message(
             f"✅ Private channel created: {channel.mention}", ephemeral=True
         )
