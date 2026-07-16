@@ -55,9 +55,48 @@ async def _push_content_to_repo(session: aiohttp.ClientSession, repo: str,
     return False
 
 
+async def _pull_data_from_github() -> bool:
+    """Pull the latest tiers_data.json from GitHub (via API, no CDN cache) and overwrite local.
+
+    Called on startup so both the Replit and Railway instances always boot with
+    the most current player data, regardless of what was in the repo at deploy time.
+    Returns True if the local file was updated from GitHub.
+    """
+    token = os.getenv("GITHUB_TOKEN")
+    headers = {"Accept": "application/vnd.github.v3+json", "User-Agent": "aftershock-bot/1.0"}
+    if token:
+        headers["Authorization"] = f"token {token}"
+    url = f"https://api.github.com/repos/{GITHUB_OWNER}/{GITHUB_REPO_CODE}/contents/{GITHUB_FILE}"
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=headers) as r:
+                if r.status != 200:
+                    print(f"[GitHub pull] Failed to fetch data: HTTP {r.status}")
+                    return False
+                resp = await r.json()
+        remote_content = base64.b64decode(resp["content"].replace("\n", ""))
+        remote_data = json.loads(remote_content)
+        remote_players = len(remote_data.get("players", {}))
+        # Only overwrite local if GitHub has more player data (safety check)
+        local_data = load_data()
+        local_players = len(local_data.get("players", {}))
+        if remote_players >= local_players:
+            with open(DATA_FILE, "wb") as f:
+                f.write(remote_content)
+            print(f"[GitHub pull] tiers_data.json pulled from GitHub ✅ ({remote_players} players, {len(remote_data.get('profiles', {}))} profiles)")
+            return True
+        else:
+            print(f"[GitHub pull] Local data is newer ({local_players} players) — keeping local")
+            return False
+    except Exception as e:
+        print(f"[GitHub pull] Error: {e}")
+        return False
+
+
 async def _push_data_to_github():
     token = os.getenv("GITHUB_TOKEN")
     if not token:
+        print("[GitHub sync] No GITHUB_TOKEN — skipping data push")
         return
     try:
         with open(DATA_FILE, "rb") as f:
@@ -833,6 +872,9 @@ async def on_ready():
     print(f"Total guilds synced: {len(synced_guilds)}")
     print("------")
 
+    # Pull latest player data from GitHub first so this instance always boots
+    # with the most current data (critical for Railway which resets local files on redeploy)
+    await _pull_data_from_github()
     await resolve_discord_names()
     await _push_website_to_github()
     await _push_data_to_github()
