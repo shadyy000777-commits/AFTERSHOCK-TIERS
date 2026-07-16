@@ -2171,12 +2171,26 @@ class PlayerSelect(discord.ui.Select):
         if not isinstance(category, discord.CategoryChannel):
             category = None
 
+        staff_perm = discord.PermissionOverwrite(
+            view_channel=True, send_messages=True,
+            read_message_history=True, manage_channels=True,
+        )
+        member_perm = discord.PermissionOverwrite(
+            view_channel=True, send_messages=True, read_message_history=True,
+        )
         overwrites = {
             guild.default_role: discord.PermissionOverwrite(view_channel=False),
-            guild.me: discord.PermissionOverwrite(view_channel=True, send_messages=True, manage_channels=True),
-            tester: discord.PermissionOverwrite(view_channel=True, send_messages=True, read_message_history=True),
-            player: discord.PermissionOverwrite(view_channel=True, send_messages=True, read_message_history=True),
+            guild.me: staff_perm,
+            tester: member_perm,
+            player: member_perm,
         }
+        # Explicitly grant the server owner access (bypassing @everyone deny)
+        if guild.owner and guild.owner not in (tester, player):
+            overwrites[guild.owner] = staff_perm
+        # Explicitly grant any admin roles access
+        for role in guild.roles:
+            if role.permissions.administrator and role not in overwrites:
+                overwrites[role] = staff_perm
 
         safe_name = f"chat-{tester.name}-{player.name}".lower().replace(" ", "-")[:90]
         try:
