@@ -2167,6 +2167,9 @@ class PlayerSelect(discord.ui.Select):
             )
             return
 
+        # Defer immediately so Discord doesn't time out while we create the channel
+        await interaction.response.defer(ephemeral=True)
+
         category = guild.get_channel(PRIVATE_CHAT_CATEGORY_ID)
         if not isinstance(category, discord.CategoryChannel):
             category = None
@@ -2225,7 +2228,7 @@ class PlayerSelect(discord.ui.Select):
         # Small delay so Discord's gateway can push the CHANNEL_CREATE event to
         # all connected clients before we send the mention — prevents #unknown.
         await asyncio.sleep(1.5)
-        await interaction.response.send_message(
+        await interaction.followup.send(
             f"✅ Private channel created: {channel.mention}", ephemeral=True
         )
 
