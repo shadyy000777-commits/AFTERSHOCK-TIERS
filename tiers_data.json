@@ -1124,6 +1124,15 @@
       "account_type": "Java",
       "verified_at": "2026-07-19T10:06:32.563805",
       "skin_url": ""
+    },
+    "1079370765666877451": {
+      "discord_id": "1079370765666877451",
+      "discord_name": "luciferxdd_.",
+      "minecraft_username": "DISHANT_SINGH",
+      "region": "AS",
+      "account_type": "Java",
+      "verified_at": "2026-07-27T09:19:34.002598",
+      "skin_url": ""
     }
   },
   "waitlist": {
@@ -1260,7 +1269,8 @@
     "1491373546885349437": "\ud835\udc7d\ud835\udc76\ud835\udc79\ud835\udc7b\ud835\udc6c\ud835\udc7f\ud835\udc7f",
     "1474446412799410352": "ADAPTER",
     "1087258372803403776": "Arnav718",
-    "962284579669024828": "DomainGamerr"
+    "962284579669024828": "DomainGamerr",
+    "1079370765666877451": "DISHANT_SINGH"
   },
   "gamemode_roles": {
     "Sword": "1521360610195931277",
