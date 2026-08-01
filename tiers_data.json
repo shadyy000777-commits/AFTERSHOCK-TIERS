@@ -1133,6 +1133,15 @@
       "account_type": "Java",
       "verified_at": "2026-07-27T09:19:58.568791",
       "skin_url": ""
+    },
+    "1508368334180319394": {
+      "discord_id": "1508368334180319394",
+      "discord_name": "ayushpro0248",
+      "minecraft_username": "YGG904",
+      "region": "AS",
+      "account_type": "Java",
+      "verified_at": "2026-08-01T02:27:32.357858",
+      "skin_url": ""
     }
   },
   "waitlist": {
@@ -1270,7 +1279,8 @@
     "1474446412799410352": "ADAPTER",
     "1087258372803403776": "Arnav718",
     "962284579669024828": "DomainGamerr",
-    "1079370765666877451": "DISHANT_ISCOOKED"
+    "1079370765666877451": "DISHANT_ISCOOKED",
+    "1508368334180319394": "YGG904"
   },
   "gamemode_roles": {
     "Sword": "1521360610195931277",
